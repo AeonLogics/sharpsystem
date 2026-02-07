@@ -1,3 +1,4 @@
+use crate::components::Notifier;
 use crate::routes::HomePage;
 use crate::routes::NotFoundPage;
 use crate::routes::{DashboardPage, LoginPage, RegisterPage};
@@ -7,6 +8,7 @@ use leptos_router::{
     components::{Route, Router, Routes},
     StaticSegment,
 };
+use models::system_state::SystemState;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -31,6 +33,10 @@ pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
+    // Create global system state and provide it as context
+    let state = RwSignal::new(SystemState::default());
+    provide_context(state);
+
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
@@ -41,6 +47,7 @@ pub fn App() -> impl IntoView {
 
         // content for this welcome page
         <Router>
+            <Notifier />
             <main>
                 <Routes fallback=|| view! { <NotFoundPage /> }>
                     <Route path=StaticSegment("") view=HomePage/>
