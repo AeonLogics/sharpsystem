@@ -1,0 +1,165 @@
+.not-found-page {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--bg-dark);
+
+    .not-found-container {
+        z-index: 10;
+        width: 100%;
+        max-width: 600px;
+        padding: 2rem;
+    }
+
+    .not-found-card {
+        padding: 4rem 3rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .not-found-visual {
+        position: relative;
+        margin-bottom: 2.5rem;
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-background-fill-color: transparent; // Fixed typo in plan too
+            -webkit-text-fill-color: transparent;
+            opacity: 0.15;
+            filter: blur(4px);
+        }
+
+        .glitch-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 6rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(var(--primary-rgb), 0.5);
+
+            &::before,
+            &::after {
+                content: attr(data-text);
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0.8;
+            }
+
+            &::before {
+                color: #ff00c3;
+                z-index: -1;
+                animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            }
+
+            &::after {
+                color: #00fff9;
+                z-index: -2;
+                animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite;
+            }
+        }
+    }
+
+    .not-found-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(to right, #fff, #aab);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .not-found-subtitle {
+        font-size: 1.125rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 3rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .not-found-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    // Orbs specifically for this page
+    .orb-4 {
+        top: 10%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%);
+        animation: float 25s infinite alternate;
+    }
+
+    .orb-5 {
+        bottom: -10%;
+        left: -5%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.15), transparent 70%);
+        animation: float 20s infinite alternate-reverse;
+    }
+}
+
+@keyframes glitch {
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-2px, 2px);
+    }
+
+    40% {
+        transform: translate(-2px, -2px);
+    }
+
+    60% {
+        transform: translate(2px, 2px);
+    }
+
+    80% {
+        transform: translate(2px, -2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.slide-up {
+    animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

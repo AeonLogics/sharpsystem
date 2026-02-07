@@ -1,0 +1,23 @@
+// ============================================
+// 🎨 SHARP SYSTEM - Main Stylesheet
+// ============================================
+
+// 1. Base (Variables, Reset, Typography)
+@import "base/variables";
+@import "base/reset";
+@import "base/typography";
+@import "base/utilities";
+
+// 2. Components (Buttons, Cards, Forms)
+@import "components/buttons";
+@import "components/cards";
+@import "components/forms";
+@import "components/ui";
+@import "components/notifications";
+@import "components/loading";
+
+// 3. Pages (Home, Auth, Dashboard)
+@import "pages/home";
+@import "pages/auth";
+@import "pages/dashboard";
+@import "pages/not_found";

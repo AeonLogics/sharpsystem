@@ -1,0 +1,70 @@
+// ============================================
+// 📋 INPUTS & FORMS
+// ============================================
+
+// Floating Label Input Group
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.875rem 1.125rem;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    background: var(--bg-soft, rgba(255, 255, 255, 0.03));
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-lg, 12px);
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    // Hide placeholder so we can use :placeholder-shown
+    &::placeholder {
+        color: transparent;
+    }
+
+    // Active/Focus states
+    &:focus {
+        border-color: var(--color-primary);
+        background: var(--bg-elevated, rgba(255, 255, 255, 0.05));
+        box-shadow: 0 0 0 4px var(--color-primary-subtle),
+            inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+    }
+
+    // Floating Label Logic: Focus OR Has Content
+    &:focus~.input-label,
+    &:not(:placeholder-shown)~.input-label {
+        top: -0.65rem;
+        left: 0.9rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        background: var(--bg-card, #1a1a1a); // Solid background for label highlight
+        padding: 0 0.5rem;
+        letter-spacing: 0.025em;
+    }
+}
+
+.input-label {
+    position: absolute;
+    left: 1.125rem;
+    top: 0.875rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 0.25rem;
+    line-height: 1;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    font-weight: 400;
+}
+
+// Select fallback (if needed later)
+select {
+    @extend .input-field;
+}

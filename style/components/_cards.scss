@@ -1,0 +1,40 @@
+// ============================================
+// 📦 CARDS
+// ============================================
+
+.card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+
+    &:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-primary);
+    }
+
+    // Card with gradient border accent
+    &.card-accent {
+        position: relative;
+        border: none;
+
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 1px;
+            border-radius: inherit;
+            background: var(--gradient-accent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+        }
+    }
+
+    h3 {
+        margin-bottom: 0.5rem;
+    }
+}
