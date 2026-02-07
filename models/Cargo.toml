@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "time", "chrono"], optional = true }
+thiserror = "2.0"
 
 [features]
 ssr = ["dep:sqlx"]

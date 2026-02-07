@@ -1,9 +1,7 @@
-use serde::{Deserialize, Serialize};
+pub mod auth;
+pub mod entities;
+pub mod shared;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "ssr", derive(sqlx::FromRow))]
-pub struct User {
-    pub id: String,
-    pub username: String,
-    pub email: String,
-}
+pub use auth::*;
+pub use entities::*;
+pub use shared::*;
