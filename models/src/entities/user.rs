@@ -6,4 +6,5 @@ pub struct User {
     pub id: String,
     pub username: String,
     pub email: String,
+    pub company_name: Option<String>,
 }

@@ -3,7 +3,8 @@ use std::sync::Arc;
 
 #[derive(Clone, Default)]
 pub struct SystemState {
-    pub notification: Option<Arc<dyn SystemNotification + Send + Sync>>,
+    pub toasts: Vec<Arc<dyn SystemNotification + Send + Sync>>,
+    pub modal: Option<Arc<dyn SystemNotification + Send + Sync>>,
 }
 
 impl SystemState {
@@ -11,11 +12,19 @@ impl SystemState {
         Self::default()
     }
 
-    pub fn set_notification(&mut self, notification: Arc<dyn SystemNotification + Send + Sync>) {
-        self.notification = Some(notification);
+    pub fn add_toast(&mut self, notification: Arc<dyn SystemNotification + Send + Sync>) {
+        self.toasts.push(notification);
     }
 
-    pub fn clear_notification(&mut self) {
-        self.notification = None;
+    pub fn remove_toast(&mut self, id: &str) {
+        self.toasts.retain(|t| t.id() != id);
+    }
+
+    pub fn set_modal(&mut self, notification: Arc<dyn SystemNotification + Send + Sync>) {
+        self.modal = Some(notification);
+    }
+
+    pub fn clear_modal(&mut self) {
+        self.modal = None;
     }
 }

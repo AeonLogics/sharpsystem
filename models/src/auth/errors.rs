@@ -15,6 +15,10 @@ pub enum AuthError {
 }
 
 impl SystemNotification for AuthError {
+    fn id(&self) -> String {
+        format!("auth-error-{:?}", self)
+    }
+
     fn title(&self) -> String {
         match self {
             Self::UserAlreadyExists => "Conflict Detected".to_string(),

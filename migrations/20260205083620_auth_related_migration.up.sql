@@ -19,7 +19,7 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT,
     role user_role NOT NULL DEFAULT 'employee',
-    full_name TEXT,
+    username TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

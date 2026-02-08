@@ -1,4 +1,4 @@
-use crate::components::Notifier;
+use crate::components::{AlertModal, Notifier};
 use crate::routes::HomePage;
 use crate::routes::NotFoundPage;
 use crate::routes::{DashboardPage, LoginPage, RegisterPage};
@@ -48,6 +48,7 @@ pub fn App() -> impl IntoView {
         // content for this welcome page
         <Router>
             <Notifier />
+            <AlertModal />
             <main>
                 <Routes fallback=|| view! { <NotFoundPage /> }>
                     <Route path=StaticSegment("") view=HomePage/>

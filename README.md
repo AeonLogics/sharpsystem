@@ -1,11 +1,14 @@
-<picture>
-    <source srcset="https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_Solid_White.svg" media="(prefers-color-scheme: dark)">
-    <img src="https://raw.githubusercontent.com/leptos-rs/leptos/main/docs/logos/Leptos_logo_RGB.svg" alt="Leptos Logo">
-</picture>
+# Sharp System Terminal
 
-# Leptos Axum Starter Template
+The next generation of high-precision management systems, built on a modular "Bento" architecture using Rust and Leptos.
 
-This is a template for use with the [Leptos](https://github.com/leptos-rs/leptos) web framework and the [cargo-leptos](https://github.com/akesson/cargo-leptos) tool using [Axum](https://github.com/tokio-rs/axum).
+## Project Documentation
+
+Detailed documentation on the system's design and patterns can be found in the `docs/` directory:
+
+- [**System Architecture**](file:///d:/RustRover/sharp-system/docs/architecture.md): Overview of the multi-crate workspace and data flow patterns.
+- **Authentication Flow**: (Coming Soon) Details on secure initialization and session management.
+- **Notification System**: (Coming Soon) Documentation on the premium toast/modal feedback system.
 
 ## Creating your template repo
 

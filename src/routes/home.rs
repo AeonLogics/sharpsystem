@@ -1,7 +1,12 @@
 use leptos::prelude::*;
+use models::shared::notifications::{Notification, NotificationLevel};
+use models::system_state::SystemState;
+use std::sync::Arc;
 
 #[component]
 pub fn HomePage() -> impl IntoView {
+    let state = use_context::<RwSignal<SystemState>>().expect("SystemState context not found");
+
     view! {
         <main class="home-page">
             <div class="grain-bg"></div>
@@ -162,6 +167,29 @@ pub fn HomePage() -> impl IntoView {
                             <h3>"Global Mesh Network"</h3>
                             <p>"Deploy your operations across a resilient, self-healing mesh architecture that scales automatically with your demand."</p>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="system-verification container py-20 relative z-20">
+                <div class="glass-card-premium p-12 text-center border-dashed">
+                    <h3 class="text-3xl font-bold mb-6 gradient-text">"System Verification Console"</h3>
+                    <div class="flex flex-wrap gap-4 justify-center">
+                        <button on:click=move |_| {
+                            state.update(|s| s.add_toast(Arc::new(Notification::new("Success Toast", "Operation completed successfully.", NotificationLevel::Success))));
+                        } class="btn btn-primary px-8">"Trigger Success"</button>
+
+                        <button on:click=move |_| {
+                            state.update(|s| s.add_toast(Arc::new(Notification::new("Warning Toast", "Potential data anomaly detected.", NotificationLevel::Warning))));
+                        } class="btn btn-ghost glass-btn px-8">"Trigger Warning"</button>
+
+                        <button on:click=move |_| {
+                            state.update(|s| s.add_toast(Arc::new(Notification::new("Error Toast", "Critical system failure in node 5.", NotificationLevel::Error))));
+                        } class="btn bg-red-500/10 border border-red-500/20 text-red-400 px-8 hover:bg-red-500/20">"Trigger Error"</button>
+
+                        <button on:click=move |_| {
+                            state.update(|s| s.set_modal(Arc::new(Notification::new("Security Alert", "Biometric verification required for neural uplink.", NotificationLevel::Warning))));
+                        } class="btn border border-purple-500/30 text-purple-400 px-8 glow-primary">"Trigger Modal"</button>
                     </div>
                 </div>
             </section>
