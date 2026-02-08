@@ -1,46 +1,52 @@
-# Builder stage
-FROM rustlang/rust:nightly-bookworm AS builder
+# Get started with a build env with Rust stable
+FROM rust:1.85.0-bookworm as builder
 
-# Install wasm32 target
-RUN rustup target add wasm32-unknown-unknown
+# Install cargo-binstall, which makes it easier to install other
+# cargo extensions like cargo-leptos
+RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
+RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
+RUN cp cargo-binstall /usr/local/cargo/bin
+
+# Install required tools
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends clang
 
 # Install cargo-leptos
-RUN cargo install --locked cargo-leptos
+RUN cargo binstall cargo-leptos -y
 
-# Create app directory
+# Add the WASM target
+RUN rustup target add wasm32-unknown-unknown
+
+# Make an /app dir, which everything will eventually live in
+RUN mkdir -p /app
 WORKDIR /app
-
-# Copy the whole project
 COPY . .
 
-# Build the application
-# We use --release for the final production build
+# Build the app
 RUN cargo leptos build --release -vv
 
-# Runtime stage
-FROM debian:bookworm-slim AS runtime
-
-# Install CA certificates and other runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    libssl3 \
+FROM debian:bookworm-slim as runtime
+WORKDIR /app
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates libssl3 \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Copy the server binary to the /app directory
+# Note: modern cargo-leptos puts binary in target/server/release/sharp-system
+COPY --from=builder /app/target/server/release/sharp-system /app/
 
-# Copy the server binary from the builder stage
-# The binary name depends on the package name in Cargo.toml
-COPY --from=builder /app/target/server/release/sharp-system /app/sharp-system
-
-# Copy the site assets (JS, WASM, CSS)
+# /target/site contains our JS/WASM/CSS, etc.
 COPY --from=builder /app/target/site /app/site
 
-# Set environment variables for Leptos
-ENV LEPTOS_SITE_ROOT=site
-ENV LEPTOS_SITE_ADDR=0.0.0.0:3000
-ENV LEPTOS_ENV=PROD
+# Copy Cargo.toml if it’s needed at runtime
+COPY --from=builder /app/Cargo.toml /app/
 
-# Expose the port
+# Set environment variables
+ENV RUST_LOG="info"
+ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
+ENV LEPTOS_SITE_ROOT="site"
 EXPOSE 3000
 
 # Run the server
