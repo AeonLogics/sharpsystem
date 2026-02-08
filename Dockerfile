@@ -30,7 +30,7 @@ WORKDIR /app
 
 # Copy the server binary from the builder stage
 # The binary name depends on the package name in Cargo.toml
-COPY --from=builder /app/target/release/sharp-system /app/sharp-system
+COPY --from=builder /app/target/server/release/sharp-system /app/sharp-system
 
 # Copy the site assets (JS, WASM, CSS)
 COPY --from=builder /app/target/site /app/site

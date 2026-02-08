@@ -117,11 +117,13 @@
 
     button[type="submit"] {
         margin-top: var(--spacing-4);
-        padding: var(--spacing-5);
+        padding: var(--spacing-7);
         border-radius: var(--radius-lg);
         font-weight: 800;
         font-size: 1.125rem;
-        letter-spacing: -0.01em;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.3);
     }
 }
 
@@ -331,11 +333,15 @@
         transform: translateX(0);
     }
 }
+
 @keyframes pulse-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.2);
     }
+
     50% {
         transform: scale(1.05);
         box-shadow: 0 0 40px rgba(var(--color-primary-rgb), 0.4);
@@ -343,6 +349,11 @@
 }
 
 @keyframes scan-rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
