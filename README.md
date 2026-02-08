@@ -44,4 +44,6 @@ cargo leptos build --release
 ```
 
 ## ◈ License
-SharpSystem Proprietary Implementation.
+
+**Proprietary & Confidential.** All Rights Reserved (c) 2026.
+Unauthorized use or distribution is strictly prohibited.
