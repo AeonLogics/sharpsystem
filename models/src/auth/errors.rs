@@ -6,7 +6,7 @@ use thiserror::Error;
 pub enum AuthError {
     #[error("Identity Conflict: This identifier is already registered.")]
     UserAlreadyExists,
-    #[error("Validation Failure: The provided data does not meet code requirements.")]
+    #[error("{0}")]
     InvalidInput(String),
     #[error("Security Breach: Invalid credentials provided.")]
     InvalidCredentials,

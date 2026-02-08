@@ -171,25 +171,95 @@ pub fn HomePage() -> impl IntoView {
                 </div>
             </section>
 
-            <section class="system-verification container py-20 relative z-20">
-                <div class="glass-card-premium p-12 text-center border-dashed">
-                    <h3 class="text-3xl font-bold mb-6 gradient-text">"System Verification Console"</h3>
-                    <div class="flex flex-wrap gap-4 justify-center">
-                        <button on:click=move |_| {
-                            state.update(|s| s.add_toast(Arc::new(Notification::new("Success Toast", "Operation completed successfully.", NotificationLevel::Success))));
-                        } class="btn btn-primary px-8">"Trigger Success"</button>
+            <section class="system-verification container py-24 relative z-20">
+                <div class="terminal-window scale-in">
+                    <div class="terminal-header">
+                        <div class="controls">
+                            <div class="dot red"></div>
+                            <div class="dot yellow"></div>
+                            <div class="dot green"></div>
+                        </div>
+                        <div class="title">"SYSTEM // VERIFICATION_CONSOLE v.2.0.4"</div>
+                        <div class="status-badge">"LIVE // STABLE"</div>
+                    </div>
 
-                        <button on:click=move |_| {
-                            state.update(|s| s.add_toast(Arc::new(Notification::new("Warning Toast", "Potential data anomaly detected.", NotificationLevel::Warning))));
-                        } class="btn btn-ghost glass-btn px-8">"Trigger Warning"</button>
+                    <div class="terminal-body grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+                        <div class="console-main">
+                            <div class="console-output font-mono text-sm">
+                                <div class="line"><span class="timestamp">"[13:59:42]"</span> <span class="prefix">"SHARP_SYSTEM:"</span> "Initializing kernel verification protocols..."</div>
+                                <div class="line"><span class="timestamp">"[13:59:43]"</span> <span class="prefix">"SHARP_SYSTEM:"</span> "All neural nodes active. Waiting for manual trigger."</div>
+                                <div class="line cursor-line">
+                                    <span class="prompt">">"</span>
+                                    <span class="cursor">"_"</span>
+                                </div>
+                            </div>
 
-                        <button on:click=move |_| {
-                            state.update(|s| s.add_toast(Arc::new(Notification::new("Error Toast", "Critical system failure in node 5.", NotificationLevel::Error))));
-                        } class="btn bg-red-500/10 border border-red-500/20 text-red-400 px-8 hover:bg-red-500/20">"Trigger Error"</button>
+                            <div class="console-actions mt-12">
+                                <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-purple-400/60 mb-6">"Manual Overrides"</h4>
+                                <div class="flex flex-wrap gap-4">
+                                    <button on:click=move |_| {
+                                        state.update(|s| s.add_toast(Arc::new(Notification::new("Success Toast", "Operation completed successfully.", NotificationLevel::Success))));
+                                    } class="console-btn btn-success">
+                                        <span class="code">"EXEC"</span> "TRIGGER_SUCCESS"
+                                    </button>
 
-                        <button on:click=move |_| {
-                            state.update(|s| s.set_modal(Arc::new(Notification::new("Security Alert", "Biometric verification required for neural uplink.", NotificationLevel::Warning))));
-                        } class="btn border border-purple-500/30 text-purple-400 px-8 glow-primary">"Trigger Modal"</button>
+                                    <button on:click=move |_| {
+                                        state.update(|s| s.add_toast(Arc::new(Notification::new("Warning Toast", "Potential data anomaly detected.", NotificationLevel::Warning))));
+                                    } class="console-btn btn-warning">
+                                        <span class="code">"WARN"</span> "REPORT_ANOMALY"
+                                    </button>
+
+                                    <button on:click=move |_| {
+                                        state.update(|s| s.add_toast(Arc::new(Notification::new("Error Toast", "Critical system failure in node 5.", NotificationLevel::Error))));
+                                    } class="console-btn btn-error">
+                                        <span class="code">"FAIL"</span> "EMERGENCY_STOP"
+                                    </button>
+
+                                    <button on:click=move |_| {
+                                        state.update(|s| s.set_modal(Arc::new(Notification::new("Security Alert", "Biometric verification required for neural uplink.", NotificationLevel::Warning))));
+                                    } class="console-btn btn-modal">
+                                        <span class="code">"AUTH"</span> "SECURE_UPLINK"
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="console-sidebar bg-white/[0.02] rounded-2xl border border-white/5 p-6 flex flex-col gap-6 font-mono text-xs">
+                            <div class="sidebar-block">
+                                <span class="block-label">"CORE_LOAD"</span>
+                                <div class="progress-mini mt-2">
+                                    <div class="fill" style="width: 42%"></div>
+                                </div>
+                                <div class="flex justify-between mt-1 opacity-40">
+                                    <span>"SYSTEM"</span>
+                                    <span>"42%"</span>
+                                </div>
+                            </div>
+
+                            <div class="sidebar-block">
+                                <span class="block-label">"ACTIVE_NODES"</span>
+                                <div class="nodes-grid grid grid-cols-4 gap-2 mt-3">
+                                    <div class="node active"></div>
+                                    <div class="node active"></div>
+                                    <div class="node active pulse"></div>
+                                    <div class="node active"></div>
+                                    <div class="node active"></div>
+                                    <div class="node offline"></div>
+                                    <div class="node active"></div>
+                                    <div class="node active"></div>
+                                </div>
+                            </div>
+
+                            <div class="sidebar-block mt-auto">
+                                <div class="h-24 w-full bg-gradient-to-t from-purple-500/10 to-transparent border-t border-purple-500/20 rounded-t-lg relative overflow-hidden">
+                                     <div class="scanline"></div>
+                                </div>
+                                <div class="flex justify-between p-2 bg-purple-500/10 rounded-b-lg border border-purple-500/20">
+                                    <span class="text-[9px] text-purple-400">"SCANNING GATE"</span>
+                                    <span class="text-[9px] text-purple-400">"04.09"</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

@@ -72,6 +72,7 @@
             color: var(--text-primary);
             font-size: 1rem;
             transition: all var(--transition-base);
+            width: 100%;
 
             &::placeholder {
                 color: var(--text-muted);
@@ -83,6 +84,33 @@
                 background: rgba(255, 255, 255, 0.06);
                 border-color: var(--color-primary);
                 box-shadow: 0 0 20px var(--color-primary-subtle);
+            }
+        }
+    }
+
+    .password-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .password-toggle {
+            position: absolute;
+            right: var(--spacing-4);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 1rem;
+            opacity: 0.5;
+            transition: all var(--transition-fast);
+            padding: var(--spacing-2);
+
+            &:hover {
+                opacity: 1;
+                color: var(--color-primary);
+                transform: scale(1.1);
             }
         }
     }
@@ -185,10 +213,50 @@
     }
 
     .wizard-step-container {
-        min-height: 120px;
+        min-height: 240px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+    }
+
+    .welcome-step {
+        .pulsing-shield {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border: 2px solid var(--color-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 30px var(--color-primary-subtle);
+            animation: pulse-glow 2s infinite;
+
+            .icon {
+                font-size: 2rem;
+                color: var(--color-primary);
+                filter: drop-shadow(0 0 10px var(--color-primary));
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: -10px;
+                border: 1px solid var(--color-primary);
+                border-radius: 50%;
+                opacity: 0.3;
+                animation: scan-rotate 4s linear infinite;
+            }
+        }
+
+        .system-stats {
+            background: rgba(255, 255, 255, 0.03);
+            padding: var(--spacing-4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--glass-border);
+        }
     }
 
     .review-step {
@@ -262,4 +330,19 @@
         opacity: 1;
         transform: translateX(0);
     }
+}
+@keyframes pulse-glow {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.2);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(var(--color-primary-rgb), 0.4);
+    }
+}
+
+@keyframes scan-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

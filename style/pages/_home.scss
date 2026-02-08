@@ -278,7 +278,7 @@
 
     .stats-inner {
         background: rgba(var(--gray-950), 0.6);
-        backdrop-blur: 24px;
+        backdrop-filter: blur(24px);
         padding: var(--spacing-10);
         border-radius: calc(var(--radius-xl) - 2px);
     }
@@ -326,6 +326,247 @@
         text-transform: uppercase;
         letter-spacing: 0.2em;
         color: var(--text-muted);
+    }
+}
+
+// ============================================
+// 🖥️ TERMINAL WINDOW (Verification Console)
+// ============================================
+.terminal-window {
+    background: rgba(var(--gray-950), 0.8);
+    backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow:
+        0 30px 60px -12px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 0 40px var(--color-primary-subtle);
+
+    .terminal-header {
+        background: rgba(255, 255, 255, 0.03);
+        padding: var(--spacing-4) var(--spacing-6);
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .controls {
+            display: flex;
+            gap: var(--spacing-2);
+
+            .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+
+                &.red {
+                    background: #ff5f56;
+                    opacity: 0.8;
+                }
+
+                &.yellow {
+                    background: #ffbd2e;
+                    opacity: 0.8;
+                }
+
+                &.green {
+                    background: #27c93f;
+                    opacity: 0.8;
+                }
+            }
+        }
+
+        .title {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+
+        .status-badge {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            color: var(--color-primary);
+            font-weight: 700;
+            background: var(--color-primary-subtle);
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-sm);
+        }
+    }
+
+    .terminal-body {
+        padding: var(--spacing-10);
+    }
+
+    .console-output {
+        color: var(--text-secondary);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-2);
+
+        .timestamp {
+            color: var(--text-muted);
+            margin-right: var(--spacing-2);
+        }
+
+        .prefix {
+            color: var(--color-primary);
+            font-weight: 700;
+            margin-right: var(--spacing-2);
+        }
+
+        .cursor-line {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+
+            .prompt {
+                color: var(--color-primary);
+            }
+
+            .cursor {
+                animation: blink 1s step-end infinite;
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    .console-btn {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-3) var(--spacing-6);
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        transition: all var(--transition-base);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-3);
+        color: var(--text-secondary);
+
+        .code {
+            font-size: 0.625rem;
+            color: var(--text-muted);
+            border-right: 1px solid var(--glass-border);
+            padding-right: var(--spacing-3);
+            font-weight: 400;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--color-primary);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--color-primary-subtle);
+        }
+
+        &.btn-success:hover {
+            border-color: #27c93f;
+            box-shadow: 0 5px 15px rgba(39, 201, 63, 0.1);
+        }
+
+        &.btn-warning:hover {
+            border-color: #ffbd2e;
+            box-shadow: 0 5px 15px rgba(255, 189, 46, 0.1);
+        }
+
+        &.btn-error:hover {
+            border-color: #ff5f56;
+            box-shadow: 0 5px 15px rgba(255, 95, 86, 0.1);
+        }
+    }
+
+    // Sidebar Widgets
+    .sidebar-block {
+        .block-label {
+            font-family: var(--font-mono);
+            font-size: 0.625rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+        }
+
+        .progress-mini {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-full);
+
+            .fill {
+                height: 100%;
+                background: var(--color-primary);
+                box-shadow: 0 0 10px var(--color-primary);
+            }
+        }
+
+        .node {
+            width: 10px;
+            height: 4px;
+            border-radius: 1px;
+
+            &.active {
+                background: var(--color-primary);
+                opacity: 0.4;
+            }
+
+            &.offline {
+                background: var(--text-muted);
+                opacity: 0.1;
+            }
+
+            &.pulse {
+                animation: pulse-opacity 2s infinite;
+            }
+        }
+    }
+
+    .scanline {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: rgba(var(--color-primary-rgb), 0.2);
+        box-shadow: 0 0 10px var(--color-primary);
+        animation: scan 3s linear infinite;
+        opacity: 0.5;
+    }
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes pulse-opacity {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes scan {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(1200%);
     }
 }
 
