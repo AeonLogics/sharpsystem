@@ -23,7 +23,7 @@ serde = { version = "1.0", features = ["derive"] }
 getrandom = { version = "0.3", features = ["wasm_js"] }
 actions = { path = "./actions" }
 models = { path = "./models" }
-web-sys = { version = "0.3", features = ["Window", "History"] }
+web-sys = { version = "0.3", features = ["Window", "History", "Request", "Response", "Headers", "fetch"] }
 
 [features]
 hydrate = [
