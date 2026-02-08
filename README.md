@@ -33,7 +33,10 @@ Detailed implementation patterns can be found in the `docs/` directory:
 - `dart-sass` (`npm install -g sass`)
 
 ### 2. Startup
-```bash
+```powershell
+# Initialize environment
+./setup.ps1
+
 # Run in development mode with hot-reload
 cargo leptos watch
 ```
