@@ -1,5 +1,6 @@
 # Get started with a build env with Rust stable (1.93+ required for Leptos 0.8)
-FROM rust:1.93-bookworm as builder
+FROM rust:1.93-bookworm AS builder
+
 
 # Install cargo-binstall, which makes it easier to install other
 # cargo extensions like cargo-leptos
@@ -25,7 +26,7 @@ COPY . .
 # Build the app
 RUN cargo leptos build --release -vv
 
-FROM debian:bookworm-slim as runtime
+FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends openssl ca-certificates libssl3 \
