@@ -34,8 +34,8 @@ RUN apt-get update -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the server binary to the /app directory
-# Note: modern cargo-leptos puts binary in target/server/release/sharp-system
-COPY --from=builder /app/target/server/release/sharp-system /app/
+# Standard cargo-leptos 0.8 / Workspace path
+COPY --from=builder /app/target/release/sharp-system /app/
 
 # /target/site contains our JS/WASM/CSS, etc.
 COPY --from=builder /app/target/site /app/site
