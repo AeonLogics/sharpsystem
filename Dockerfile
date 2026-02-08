@@ -1,5 +1,5 @@
-# Get started with a build env with Rust stable
-FROM rust:1.85.0-bookworm as builder
+# Get started with a build env with Rust stable (1.93+ required for Leptos 0.8)
+FROM rust:1.93-bookworm as builder
 
 # Install cargo-binstall, which makes it easier to install other
 # cargo extensions like cargo-leptos

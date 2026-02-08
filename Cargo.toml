@@ -51,6 +51,10 @@ lto = true
 codegen-units = 1
 panic = "abort"
 
+# Fix for LNK1318 "Unexpected PDB error" on Windows
+[profile.release]
+split-debuginfo = "packed"
+
 [package.metadata.leptos]
 # The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
 output-name = "sharp-system"
