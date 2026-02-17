@@ -14,6 +14,12 @@ pub enum AuthError {
     InternalError,
 }
 
+impl AuthError {
+    pub fn invalid_input(msg: impl Into<String>) -> Self {
+        Self::InvalidInput(msg.into())
+    }
+}
+
 impl SystemNotification for AuthError {
     fn id(&self) -> String {
         format!("auth-error-{:?}", self)

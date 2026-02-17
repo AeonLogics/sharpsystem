@@ -1,3 +1,4 @@
+use crate::entities::User;
 use crate::shared::notifications::SystemNotification;
 use std::sync::Arc;
 
@@ -5,6 +6,8 @@ use std::sync::Arc;
 pub struct SystemState {
     pub toasts: Vec<Arc<dyn SystemNotification + Send + Sync>>,
     pub modal: Option<Arc<dyn SystemNotification + Send + Sync>>,
+    pub user: Option<User>,
+    pub auth_initialized: bool,
 }
 
 impl SystemState {
@@ -26,5 +29,13 @@ impl SystemState {
 
     pub fn clear_modal(&mut self) {
         self.modal = None;
+    }
+
+    pub fn set_user(&mut self, user: User) {
+        self.user = Some(user);
+    }
+
+    pub fn logout(&mut self) {
+        self.user = None;
     }
 }

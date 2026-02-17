@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use leptos_router::components::A;
 
 #[component]
 pub fn NotFoundPage() -> impl IntoView {
@@ -21,7 +22,7 @@ pub fn NotFoundPage() -> impl IntoView {
                     </p>
 
                     <div class="not-found-actions">
-                        <a href="/" class="btn btn-primary btn-lg glow">"Return to Base"</a>
+                        <A href="/" attr:class="btn btn-primary btn-lg glow">"Return to Base"</A>
                         <button on:click=|_| {
                             let window = web_sys::window().expect("no global `window` exists");
                             let history = window.history().expect("should have history");

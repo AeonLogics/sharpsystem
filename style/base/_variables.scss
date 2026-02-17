@@ -78,6 +78,7 @@
         --color-primary-hover: #6d28d9;
         --color-primary-light: #f5f3ff;
         --color-primary-subtle: #fafafa;
+        --color-primary-rgb: 124, 58, 237;
 
         --bg-base: #ffffff;
         --bg-subtle: #f9fafb;
@@ -115,6 +116,7 @@
         --color-primary-hover: #c4b5fd;
         --color-primary-light: #2e1065;
         --color-primary-subtle: rgba(167, 139, 250, 0.05);
+        --color-primary-rgb: 167, 139, 250;
 
         --bg-base: #020617;
         --bg-subtle: #0f172a;
@@ -175,4 +177,31 @@
                 opacity: 0.25;
                 transform: scale(1.1);
         }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleInUp {
+    from {
+        opacity: 0;
+        transform: translateY(var(--spacing-10)) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }

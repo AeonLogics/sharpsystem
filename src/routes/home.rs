@@ -26,8 +26,8 @@ pub fn HomePage() -> impl IntoView {
                     <p class="hero-subtitle text-balance">
                         "A high-performance system engineered with Rust, designed for scale, and optimized for human-speed interaction."
                     </p>
-                    <div class="hero-cta flex flex-row gap-6 justify-center">
-                        <a href="/register" class="btn btn-primary btn-lg glow-primary px-10 py-5 text-lg font-bold">"Initialize System"</a>
+                    <div class="hero-cta flex flex-col md:flex-row gap-6 justify-center">
+                        <a href="/auth/register" class="btn btn-primary btn-lg glow-primary px-10 py-5 text-lg font-bold">"Initialize System"</a>
                         <a href="#features" class="btn btn-ghost btn-lg glass-btn px-10 py-5 text-lg">"Explore Architecture"</a>
                     </div>
                 </div>
@@ -50,7 +50,7 @@ pub fn HomePage() -> impl IntoView {
                              </div>
                         </div>
                         <div class="preview-body p-8 lg:p-16">
-                            <div class="preview-layout grid grid-cols-[240px_1fr] gap-12">
+                            <div class="preview-layout grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-12">
                                 <aside class="preview-sidebar flex flex-col gap-8">
                                     <div class="flex items-center gap-3">
                                         <div class="size-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-xs text-purple-400">"S"</div>
@@ -264,26 +264,26 @@ pub fn HomePage() -> impl IntoView {
                 </div>
             </section>
 
-            <section class="cta-premium container py-32">
-                <div class="glass-card-premium p-24 text-center relative overflow-hidden group">
+            <section class="cta-premium container py-20 md:py-32">
+                <div class="glass-card-premium p-10 md:p-24 text-center relative overflow-hidden group">
                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     <div class="relative z-10 flex flex-col items-center gap-8">
-                        <h2 class="text-6xl font-black mb-2 tracking-tighter">"Ready for the Upgrade?"</h2>
-                        <p class="text-2xl text-slate-300 max-w-xl mx-auto font-light">"Join the elite teams building on the Sharp System ecosystem."</p>
+                        <h2 class="text-4xl md:text-6xl font-black mb-2 tracking-tighter">"Ready for the Upgrade?"</h2>
+                        <p class="text-xl md:text-2xl text-slate-300 max-w-xl mx-auto font-light">"Join the elite teams building on the Sharp System ecosystem."</p>
                         <div class="flex justify-center mt-4">
-                            <a href="/register" class="btn btn-primary btn-xl px-16 py-6 text-xl font-black glow-primary tracking-tight">"INITIALIZE NOW —"</a>
+                            <a href="/auth/register" class="btn btn-primary btn-lg md:btn-xl px-10 md:px-16 py-4 md:py-6 text-lg md:text-xl font-black glow-primary tracking-tight">"INITIALIZE NOW —"</a>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <footer class="footer container py-20 border-t border-white/5 mt-20">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-12 w-full">
+            <footer class="footer container py-16 md:py-20 border-t border-white/5 mt-12 md:mt-20">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12 w-full">
                     <div class="flex flex-col gap-4">
                         <p class="text-lg font-black tracking-widest uppercase">"Sharp // System"</p>
                         <p class="text-sm text-slate-500">"The next generation of high-precision management."</p>
                     </div>
-                    <div class="flex gap-12">
+                    <div class="flex flex-wrap gap-12">
                          <div class="flex flex-col gap-4">
                              <h5 class="text-xs font-bold uppercase tracking-widest text-purple-400">"Resources"</h5>
                              <a href="#" class="text-sm text-slate-400 hover:text-white transition-colors">"Documentation"</a>

@@ -1,8 +1,62 @@
+use actions::auth::Login;
 use leptos::prelude::*;
+use leptos_router::components::A;
+use models::shared::notifications::{Notification, NotificationLevel};
+use models::system_state::SystemState;
+use models::LoginPayload;
+use std::sync::Arc;
 
 /// Login page component
 #[component]
 pub fn LoginPage() -> impl IntoView {
+    let state =
+        use_context::<RwSignal<SystemState>>().expect("SystemState context should be provided");
+    let navigate = leptos_router::hooks::use_navigate();
+
+    // Form field signals
+    let (email, set_email) = signal(String::new());
+    let (password, set_password) = signal(String::new());
+
+    // Server action
+    let login_action = ServerAction::<Login>::new();
+    let login_loading = login_action.pending();
+    let login_value = login_action.value();
+
+    // Handle form submission
+    let on_submit = move |ev: leptos::ev::SubmitEvent| {
+        ev.prevent_default();
+        login_action.dispatch(Login {
+            payload: LoginPayload {
+                email: email.get(),
+                password: password.get(),
+            },
+        });
+    };
+
+    // Watch for server errors
+    Effect::new(move |_| {
+        if let Some(Err(e)) = login_value.get() {
+            state.update(|s| {
+                s.add_toast(Arc::new(e));
+            });
+        }
+    });
+
+    // Watch for success
+    Effect::new(move |_| {
+        if let Some(Ok(user)) = login_value.get() {
+            state.update(|s| {
+                s.set_user(user);
+                s.add_toast(Arc::new(Notification::new(
+                    "Access Authorized",
+                    "Welcome back to the grid.",
+                    NotificationLevel::Success,
+                )));
+            });
+            navigate("/dashboard", Default::default());
+        }
+    });
+
     view! {
         <main class="auth-page">
             <div class="grain-bg"></div>
@@ -18,7 +72,7 @@ pub fn LoginPage() -> impl IntoView {
                         <p>"Sign in to your Sharp System terminal"</p>
                     </header>
 
-                    <form class="auth-form fade-in">
+                    <form class="auth-form fade-in" on:submit=on_submit>
                         <div class="form-group">
                             <label for="email">"Identity // Email Address"</label>
                             <input
@@ -26,6 +80,8 @@ pub fn LoginPage() -> impl IntoView {
                                 id="email"
                                 name="email"
                                 placeholder="you@example.com"
+                                on:input=move |ev| set_email.set(event_target_value(&ev))
+                                prop:value=email
                                 required
                             />
                         </div>
@@ -37,23 +93,29 @@ pub fn LoginPage() -> impl IntoView {
                                 id="password"
                                 name="password"
                                 placeholder="••••••••"
+                                on:input=move |ev| set_password.set(event_target_value(&ev))
+                                prop:value=password
                                 required
                             />
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-full glow-primary">
-                            "SIGN IN"
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-full glow-primary"
+                            disabled=login_loading
+                        >
+                            {move || if login_loading.get() { "AUTHORIZING..." } else { "SIGN IN" }}
                         </button>
                     </form>
 
                     <footer class="auth-footer scale-in">
                         <p>
                             "New to the system? "
-                            <a href="/register">"Initialize Account"</a>
+                            <A href="/auth/register">"Initialize Account"</A>
                         </p>
-                        <a href="/" class="back-to-home">
+                        <A href="/" attr:class="back-to-home">
                             "← Back to Terminal"
-                        </a>
+                        </A>
                     </footer>
                 </div>
 

@@ -17,30 +17,41 @@ console_error_panic_hook = { version = "0.1", optional = true }
 leptos_axum = { version = "0.8.0", optional = true }
 leptos_meta = { version = "0.8.0" }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
-wasm-bindgen = { version = "0.2.106", optional = true }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "time", "chrono"], optional = true }
 serde = { version = "1.0", features = ["derive"] }
-getrandom = { version = "0.3", features = ["wasm_js"] }
 actions = { path = "./actions" }
 models = { path = "./models" }
 web-sys = { version = "0.3", features = ["Window", "History", "Request", "Response", "Headers"] }
+dotenvy = { version = "0.15", optional = true }
+tower-sessions = { version = "0.14.0", optional = true }
+tower-sessions-sqlx-store = { version = "0.15.0", features = ["postgres"], optional = true }
+tower-http = { version = "0.6", features = ["compression-full", "set-header"], optional = true }
+time = { version = "0.3", optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+wasm-bindgen = { version = "0.2.106" }
 
 [features]
 hydrate = [
     "leptos/hydrate",
     "dep:console_error_panic_hook",
-    "dep:wasm-bindgen",
 ]
 ssr = [
     "dep:axum",
     "dep:tokio",
     "dep:leptos_axum",
     "dep:sqlx",
+    "dep:dotenvy",
     "leptos/ssr",
     "leptos_meta/ssr",
     "leptos_router/ssr",
     "actions/ssr",
     "models/ssr",
+    "dep:tower-sessions",
+    "dep:tower-sessions-sqlx-store",
+    "dep:tower-http",
+    "dep:time",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
@@ -75,7 +86,7 @@ style-file = "style/main.scss"
 assets-dir = "public"
 
 # The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
-site-addr = "127.0.0.1:3000"
+site-addr = "0.0.0.0:3000"
 
 # The port to use for automatic reload monitoring
 reload-port = 3001

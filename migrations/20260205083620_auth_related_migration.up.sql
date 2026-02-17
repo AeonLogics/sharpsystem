@@ -1,34 +1,54 @@
--- Enable UUID extension (kept if we still need other UUIDs, but primary IDs will be TEXT)
+-- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Define custom enum type for roles
-CREATE TYPE user_role AS ENUM ('owner', 'admin', 'employee');
-
--- 1. Companies (Tenants)
-CREATE TABLE companies (
-    id TEXT PRIMARY KEY, -- ULID with prefix comp_
-    name TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TYPE handler_role AS ENUM (
+    'system_admin',
+    'system_manager',
+    'system_salesman'
 );
-
--- 2. Users (Members)
-CREATE TABLE users (
-    id TEXT PRIMARY KEY, -- ULID with prefix usr_
-    company_id TEXT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+-- 1. Apex System (Global Authority)
+CREATE TABLE systems(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id UUID,
+    system_handle TEXT UNIQUE,
+    system_name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    avatar_url TEXT DEFAULT 'https://api.dicebear.com/7.x/initials/svg?'
+);
+-- 2. Node Handlers (Branded Identity)
+CREATE TABLE handlers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    system_id UUID REFERENCES systems(id) ON DELETE CASCADE,
     email TEXT NOT NULL UNIQUE,
-    password_hash TEXT,
-    role user_role NOT NULL DEFAULT 'employee',
-    username TEXT,
+    password_hash TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    handler_role handler_role DEFAULT 'system_salesman',
+    avatar_url TEXT,
+    bio TEXT,
+    preferred_theme TEXT DEFAULT 'light',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
--- 3. Sessions
+-- 3. Unified Session Store
 CREATE TABLE sessions (
-    id TEXT PRIMARY KEY, -- ULID with prefix ses_
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    system_id UUID REFERENCES systems(id) ON DELETE CASCADE,
+    handler_id UUID REFERENCES handlers(id) ON DELETE CASCADE,
     token TEXT NOT NULL UNIQUE,
-    expires_at TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    handler_role handler_role NOT NULL,
+    user_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    avatar_url TEXT,
+    bio TEXT,
+    preferred_theme TEXT,
+    system_handle TEXT NOT NULL,
+    system_name TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '7 days'),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT session_identity_check CHECK (
+        (
+            system_id IS NOT NULL
+            AND handler_id IS NOT NULL
+        )
+    )
 );
