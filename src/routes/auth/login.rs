@@ -53,7 +53,7 @@ pub fn LoginPage() -> impl IntoView {
                     NotificationLevel::Success,
                 )));
             });
-            navigate("/dashboard", Default::default());
+            navigate("/system/dashboard", Default::default());
         }
     });
 

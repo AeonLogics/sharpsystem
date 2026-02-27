@@ -43,7 +43,7 @@ pub async fn signup(payload: SignupPayload) -> Result<User, SystemError> {
         let system_id = create_system(&mut tx, &payload, &owner_id).await?;
 
         // 3. Create Handler (Owner)
-        let _handler_id = create_handler(
+        let handler_id = create_handler(
             &mut tx,
             &system_id,
             &payload,
@@ -52,29 +52,43 @@ pub async fn signup(payload: SignupPayload) -> Result<User, SystemError> {
         )
         .await?;
 
+        // 4. Create Session (Bundle contains Token + User)
+        let session: Session = leptos_axum::extract()
+            .await
+            .map_err(|e| SystemError::general(e.to_string()))?;
+
+        let avatar_url = format!(
+            "https://api.dicebear.com/7.x/initials/svg?seed={}",
+            payload.system_name
+        );
+
+        let auth_data = crate::db_ops::handler::HandlerAuthData {
+            handler_id,
+            password_hash: password_hash.clone(),
+            user_name: payload.user_name.clone(),
+            email: payload.email.clone(),
+            handler_role: HandlerRole::SystemAdmin,
+            avatar_url: Some(avatar_url.clone()),
+            bio: None,
+            preferred_theme: Some("light".to_string()),
+            system_id,
+            workspace_handle: payload.workspace_handle.clone(),
+            system_name: payload.system_name.clone(),
+        };
+
+        let token = uuid::Uuid::new_v4().to_string();
+        let bundle = create_session(&mut tx, &auth_data, &token).await?;
+
         tx.commit()
             .await
             .map_err(|e| SystemError::database(e.to_string()))?;
 
-        // 4. Return initial User record
-        let system_name = payload.system_name.clone();
-        let email = payload.email.clone();
-        let workspace_handle = payload.workspace_handle.clone();
+        session
+            .insert("session_token", bundle.token)
+            .await
+            .map_err(|e| SystemError::general(e.to_string()))?;
 
-        let avatar_url = format!(
-            "https://api.dicebear.com/7.x/initials/svg?seed={}",
-            system_name
-        );
-
-        Ok(User {
-            id: owner_id,
-            email,
-            workspace_handle,
-            system_name,
-            avatar_url: Some(avatar_url),
-            bio: None,
-            preferred_theme: Some("light".to_string()),
-        })
+        Ok(bundle.user)
     }
     #[cfg(not(feature = "ssr"))]
     {
@@ -138,8 +152,14 @@ pub async fn login_handler(payload: LoginPayload) -> Result<User, SystemError> {
 
 #[server(GetUser)]
 pub async fn get_user() -> Result<Option<User>, SystemError> {
-    #[cfg(feature = "ssr")]
     {
+        leptos::logging::log!("==== GET_USER SERVER FUNCTION EXECUTED ====");
+
+        let pool = use_context::<PgPool>().ok_or_else(|| {
+            tracing::error!("CRITICAL: use_context::<PgPool>() returned None in get_user()");
+            SystemError::database("Database connection pool not found in context. Context missing!")
+        })?;
+
         let session: Session = leptos_axum::extract()
             .await
             .map_err(|e| SystemError::general(e.to_string()))?;
@@ -149,26 +169,27 @@ pub async fn get_user() -> Result<Option<User>, SystemError> {
             .await
             .map_err(|e| SystemError::general(e.to_string()))?;
 
+        leptos::logging::log!(
+            "==== SESSION TOKEN RESOLVED ON SERVER: {:?} ====",
+            token.is_some()
+        );
+
         match token {
             Some(t) => {
-                let pool = use_context::<PgPool>().ok_or_else(|| {
-                    SystemError::database("Database connection pool not found in context.")
-                })?;
-
                 let mut conn = pool
                     .acquire()
                     .await
                     .map_err(|e| SystemError::database(e.to_string()))?;
 
                 let user = get_session_user(&mut conn, &t).await?;
+                leptos::logging::log!("==== USER DATABASE FETCH: {:?} ====", user.is_some());
                 Ok(user)
             }
-            None => Ok(None),
+            None => {
+                leptos::logging::log!("==== RETURNED NO USER ====");
+                Ok(None)
+            }
         }
-    }
-    #[cfg(not(feature = "ssr"))]
-    {
-        unreachable!()
     }
 }
 
@@ -176,6 +197,10 @@ pub async fn get_user() -> Result<Option<User>, SystemError> {
 pub async fn logout() -> Result<(), SystemError> {
     #[cfg(feature = "ssr")]
     {
+        let pool = use_context::<PgPool>().ok_or_else(|| {
+            SystemError::database("Database connection pool not found in context.")
+        })?;
+
         let session: Session = leptos_axum::extract()
             .await
             .map_err(|e| SystemError::general(e.to_string()))?;
@@ -186,10 +211,6 @@ pub async fn logout() -> Result<(), SystemError> {
             .map_err(|e| SystemError::general(e.to_string()))?;
 
         if let Some(t) = token {
-            let pool = use_context::<PgPool>().ok_or_else(|| {
-                SystemError::database("Database connection pool not found in context.")
-            })?;
-
             let mut conn = pool
                 .acquire()
                 .await

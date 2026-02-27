@@ -81,6 +81,7 @@
         --color-primary-rgb: 124, 58, 237;
 
         --bg-base: #ffffff;
+        --bg-base-rgb: 255, 255, 255;
         --bg-subtle: #f9fafb;
         --bg-muted: #f3f4f6;
         --bg-elevated: #ffffff;
@@ -119,6 +120,7 @@
         --color-primary-rgb: 167, 139, 250;
 
         --bg-base: #020617;
+        --bg-base-rgb: 2, 6, 23;
         --bg-subtle: #0f172a;
         --bg-muted: #1e293b;
         --bg-elevated: #0f172a;
@@ -180,28 +182,35 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+        from {
+                opacity: 0;
+        }
+
+        to {
+                opacity: 1;
+        }
 }
 
 @keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+        from {
+                opacity: 0;
+                transform: scale(0.95);
+        }
+
+        to {
+                opacity: 1;
+                transform: scale(1);
+        }
 }
 
 @keyframes scaleInUp {
-    from {
-        opacity: 0;
-        transform: translateY(var(--spacing-10)) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+        from {
+                opacity: 0;
+                transform: translateY(var(--spacing-10)) scale(0.98);
+        }
+
+        to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+        }
 }

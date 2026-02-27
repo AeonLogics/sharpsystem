@@ -12,6 +12,8 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 #[cfg(feature = "ssr")]
+use tracing::instrument;
+#[cfg(feature = "ssr")]
 pub async fn create_system(
     tx: &mut PgConnection,
     payload: &SignupPayload,
@@ -112,6 +114,7 @@ pub async fn create_session(
 }
 
 #[cfg(feature = "ssr")]
+#[instrument(skip(tx), ret, err)]
 pub async fn get_session_user(
     tx: &mut PgConnection,
     token: &str,

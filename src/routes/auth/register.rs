@@ -1,5 +1,4 @@
-use actions::auth::Signup;
-use actions::is_handle_available;
+use actions::{is_email_available, is_handle_available, Signup};
 use leptos::prelude::*;
 use leptos_router::components::A;
 use models::shared::notifications::{Notification, NotificationLevel};
@@ -30,6 +29,13 @@ pub fn RegisterPage() -> impl IntoView {
         async move { is_handle_available(h).await }
     });
     let handle_available = handle_check.value();
+
+    // Email availability action
+    let email_check = Action::new(|e: &String| {
+        let e = e.clone();
+        async move { is_email_available(e).await }
+    });
+    let email_available = email_check.value();
 
     // Industrial-grade slug synchronization
     Effect::new(move |_| {
@@ -63,6 +69,14 @@ pub fn RegisterPage() -> impl IntoView {
         }
     });
 
+    // Check email availability
+    Effect::new(move |_| {
+        let e = email.get();
+        if !e.is_empty() && e.contains('@') {
+            email_check.dispatch(e);
+        }
+    });
+
     // Server action
     let signup_action = ServerAction::<Signup>::new();
     let signup_loading = signup_action.pending();
@@ -86,7 +100,17 @@ pub fn RegisterPage() -> impl IntoView {
                     }
                     Ok(())
                 }
-                2 => SignupPayload::validate_email(&email.get()),
+                2 => {
+                    SignupPayload::validate_email(&email.get())?;
+                    if let Some(Ok(available)) = email_available.get_untracked() {
+                        if !available {
+                            return Err(models::auth::AuthError::InvalidInput(
+                                "This email is already registered.".to_string(),
+                            ));
+                        }
+                    }
+                    Ok(())
+                }
                 3 => {
                     let p = password.get();
                     let cp = confirm_password.get();
@@ -158,7 +182,7 @@ pub fn RegisterPage() -> impl IntoView {
                     NotificationLevel::Success,
                 )));
             });
-            navigate("/dashboard", Default::default());
+            navigate("/system/dashboard", Default::default());
         }
     });
 
@@ -280,8 +304,18 @@ pub fn RegisterPage() -> impl IntoView {
                                                                 view! { <span class="text-red-500">"✗ Reserved Handle"</span> }.into_any()
                                                             },
                                                             _ => match handle_available.get() {
-                                                                Some(Ok(true)) => view! { <span class="text-green-500">"✓ Available"</span> }.into_any(),
-                                                                Some(Ok(false)) => view! { <span class="text-red-500">"✗ Taken"</span> }.into_any(),
+                                                                Some(Ok(true)) => view! {
+                                                                    <span class="text-green-400 flex items-center gap-1">
+                                                                        <i class="fa-solid fa-circle-check"></i>
+                                                                        "Available"
+                                                                    </span>
+                                                                }.into_any(),
+                                                                Some(Ok(false)) => view! {
+                                                                    <span class="text-red-400 flex items-center gap-1">
+                                                                        <i class="fa-solid fa-circle-xmark"></i>
+                                                                        "Taken"
+                                                                    </span>
+                                                                }.into_any(),
                                                                 Some(Err(_)) => view! { <span class="text-yellow-500">"Error checking availability"</span> }.into_any(),
                                                                 None => view! { <span class="animate-pulse">"Checking..."</span> }.into_any(),
                                                             }
@@ -302,6 +336,31 @@ pub fn RegisterPage() -> impl IntoView {
                                                 prop:value=email
                                                 required
                                             />
+                                            <div class="mt-1 text-[10px] font-mono uppercase tracking-tighter">
+                                                {move || {
+                                                    let e = email.get();
+                                                    if e.is_empty() || !e.contains('@') {
+                                                         view! { <span class="opacity-30">"Valid email required"</span> }.into_any()
+                                                    } else {
+                                                        match email_available.get() {
+                                                            Some(Ok(true)) => view! {
+                                                                <span class="text-green-400 flex items-center gap-1">
+                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                    "Available"
+                                                                </span>
+                                                            }.into_any(),
+                                                            Some(Ok(false)) => view! {
+                                                                <span class="text-red-400 flex items-center gap-1">
+                                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                                    "Registered"
+                                                                </span>
+                                                            }.into_any(),
+                                                            Some(Err(_)) => view! { <span class="text-yellow-500">"Error checking availability"</span> }.into_any(),
+                                                            None => view! { <span class="animate-pulse">"Checking..."</span> }.into_any(),
+                                                        }
+                                                    }
+                                                }}
+                                            </div>
                                         </div>
                                     }.into_any(),
                                     3 => view! {

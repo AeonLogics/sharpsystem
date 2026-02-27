@@ -1,0 +1,196 @@
+// 🌈 SHARP SYSTEM - Header Styles
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+
+    // Improved Glassmorphism with better contrast fallback
+    background-color: var(--bg-elevated);
+
+    @supports (backdrop-filter: blur(12px)) {
+        background-color: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+
+    border-bottom: 1px solid var(--border-default);
+    box-shadow: var(--shadow-sm);
+
+    .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-4) var(--spacing-6);
+        min-height: 72px; // Fixed height prevents layout jumps
+    }
+
+    // Left Side Logo
+    .header-brand {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-3);
+        cursor: pointer;
+        text-decoration: none;
+        user-select: none;
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            background: var(--gradient-accent);
+            box-shadow: 0 0 15px rgba(var(--color-primary-rgb), 0.3);
+            flex-shrink: 0; // Prevent squishing
+        }
+
+        .logo-text {
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            line-height: 1;
+
+            .logo-accent {
+                color: var(--color-primary);
+                opacity: 0.85;
+                font-weight: 600;
+            }
+        }
+    }
+
+    // Right Side Controls
+    .header-controls {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-4);
+
+        .user-profile-widget {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+
+            // Clean pill shape
+            padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-4);
+            background: var(--bg-base);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-fast);
+
+            &:hover {
+                border-color: var(--border-focus);
+                box-shadow: var(--shadow-md);
+                transform: translateY(-1px);
+            }
+
+            .user-info {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                justify-content: center;
+
+                .tenant-name {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    line-height: 1.2;
+                }
+
+                .connection-status {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing-2);
+                    font-size: 0.65rem;
+                    font-family: var(--font-mono);
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+
+                    .status-dot {
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                        display: inline-block;
+
+                        &.online {
+                            background-color: #10b981; // Emerald 500
+                            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+                        }
+                    }
+                }
+            }
+
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                border: 2px solid var(--bg-subtle);
+                background-color: var(--bg-muted); // Fallback color
+                object-fit: cover;
+                flex-shrink: 0;
+            }
+
+            .disconnect-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: var(--bg-subtle);
+                border: 1px solid transparent;
+                cursor: pointer;
+                transition: all var(--transition-fast);
+                padding: 0;
+                margin-left: var(--spacing-1);
+
+                // Use an SVG icon instead of font icon for predictability
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>');
+                background-repeat: no-repeat;
+                background-position: center;
+
+                &:hover {
+                    background-color: rgba(239, 68, 68, 0.1);
+                    border-color: rgba(239, 68, 68, 0.2);
+                    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>');
+                }
+
+                i {
+                    display: none;
+                }
+
+                // Hide the old font icon if it exists
+            }
+        }
+
+        // Polished Guest Badge
+        .guest-badge {
+            background: var(--bg-base);
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-2) var(--spacing-4);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                display: inline-block;
+
+                &.offline {
+                    background-color: var(--gray-400);
+                }
+            }
+        }
+    }
+}

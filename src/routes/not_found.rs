@@ -15,7 +15,7 @@ pub fn NotFoundPage() -> impl IntoView {
                         <div class="glitch-effect" data-text="404">"404"</div>
                     </div>
 
-                    <h1 class="not-found-title">"Loksk Liek you are lost hahah"</h1>
+                    <h1 class="not-found-title">"Looks like you're lost hahah"</h1>
                     <p class="not-found-subtitle">
                         "The page you are looking for has drifted into the void. <br/>
                         Don't worry, even the best systems need a reboot sometimes."

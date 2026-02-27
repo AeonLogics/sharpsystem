@@ -3,11 +3,18 @@ use crate::shared::notifications::SystemNotification;
 use std::sync::Arc;
 
 #[derive(Clone, Default)]
+pub enum AuthState {
+    #[default]
+    Loading,
+    Authenticated(User),
+    Unauthenticated,
+}
+
+#[derive(Clone, Default)]
 pub struct SystemState {
     pub toasts: Vec<Arc<dyn SystemNotification + Send + Sync>>,
     pub modal: Option<Arc<dyn SystemNotification + Send + Sync>>,
-    pub user: Option<User>,
-    pub auth_initialized: bool,
+    pub auth_state: AuthState,
 }
 
 impl SystemState {
@@ -32,10 +39,14 @@ impl SystemState {
     }
 
     pub fn set_user(&mut self, user: User) {
-        self.user = Some(user);
+        self.auth_state = AuthState::Authenticated(user);
+    }
+
+    pub fn set_unauthenticated(&mut self) {
+        self.auth_state = AuthState::Unauthenticated;
     }
 
     pub fn logout(&mut self) {
-        self.user = None;
+        self.auth_state = AuthState::Unauthenticated;
     }
 }

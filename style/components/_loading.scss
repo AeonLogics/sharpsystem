@@ -1,97 +1,302 @@
+// ============================================
+// ⏳ CHRONOS WEAVER (Hourglass Vibe)
+// ============================================
+
 .loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 10000;
     display: flex;
     justify-content: center;
     align-items: center;
+    background: transparent;
     pointer-events: none;
-    backdrop-filter: blur(8px);
-    background: rgba(255, 255, 255, 0.02);
-    transition: opacity 0.3s ease;
+
+    &.interactive {
+        background: transparent; // Pure transparency
+        backdrop-filter: blur(12px);
+        pointer-events: auto;
+        animation: backdrop-fade-in 0.8s ease forwards;
+    }
 }
 
-.loading-container {
-    width: 150px;
-    height: 150px;
-    filter: url('#liquid');
+.loading-embedded {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-4);
+}
+
+@keyframes backdrop-fade-in {
+    from {
+        backdrop-filter: blur(0);
+    }
+
+    to {
+        backdrop-filter: blur(12px);
+    }
+}
+
+.ripple-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+
+    .ripple-pulse {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border: 2px solid var(--color-primary);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: ripple-grow 0.8s ease-out forwards;
+        opacity: 0;
+    }
+}
+
+.chronos-weaver {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+    pointer-events: none;
+
+    .hourglass-svg {
+        // Dimensions now driven by props/styles
+        filter: drop-shadow(0 0 20px var(--color-primary-subtle));
+
+        .frame-brace {
+            fill: none;
+            stroke: var(--color-primary);
+            stroke-width: 1;
+            opacity: 0.1; // More ghostly
+            stroke-dasharray: 10 5;
+            animation: rotate-slow 20s linear infinite;
+            transform-origin: center;
+        }
+
+        .frame-path {
+            fill: none;
+            stroke: var(--color-primary);
+            stroke-width: 3.5; // BOLDER
+            stroke-dasharray: 400;
+            stroke-dashoffset: 400;
+            animation: draw-frame 4s infinite ease-in-out;
+            stroke-linecap: round;
+            opacity: 0.7; // Ghostly structural lines
+        }
+
+        .frame-span {
+            fill: none;
+            stroke: var(--color-primary);
+            stroke-width: 1.5;
+            opacity: 0.2; // Ghostly structural lines
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            animation: draw-frame 6s infinite linear;
+        }
+
+        .sand-particles circle {
+            fill: var(--gradient-accent);
+            opacity: 0;
+            stroke: white;
+            stroke-width: 0.5;
+            animation: sand-flow 2s infinite ease-in;
+        }
+    }
+}
+
+@keyframes ripple-grow {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(20);
+        opacity: 0;
+    }
+}
+
+@keyframes rotate-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes draw-frame {
+    0% {
+        stroke-dashoffset: 400;
+        opacity: 0.3;
+    }
+
+    50% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        filter: drop-shadow(0 0 10px var(--color-primary));
+    }
+
+    100% {
+        stroke-dashoffset: -400;
+        opacity: 0.3;
+    }
+}
+
+@keyframes sand-flow {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    45% {
+        transform: translateY(40px) scale(0.6);
+        opacity: 1;
+    }
+
+    55% {
+        transform: translateY(45px) scale(0.6);
+        opacity: 1;
+    }
+
+    90% {
+        transform: translateY(85px) scale(1.4);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(85px) scale(1.8);
+        opacity: 0;
+    }
+}
+
+// ============================================
+// ✨ PRISM SHIMMER (Inline Skeleton)
+// ============================================
+
+.skeleton {
     position: relative;
-}
+    overflow: hidden;
+    background: var(--bg-muted);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    min-height: 1em;
+    width: 100%;
+    vertical-align: middle;
 
-.liquid-blob {
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #6366f1, #a855f7);
-    border-radius: 50%;
-    top: 35px;
-    left: 35px;
-    opacity: 0.8;
-
-    &:nth-child(1) {
-        animation: blob-move-1 4s infinite ease-in-out;
-    }
-
-    &:nth-child(2) {
-        animation: blob-move-2 4s infinite ease-in-out;
-        background: linear-gradient(135deg, #3b82f6, #2dd4bf);
-        animation-delay: -1s;
-    }
-
-    &:nth-child(3) {
-        animation: blob-move-3 4s infinite ease-in-out;
-        background: linear-gradient(135deg, #f43f5e, #fb923c);
-        animation-delay: -2s;
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg,
+                rgba(var(--color-primary-rgb), 0) 0,
+                rgba(var(--color-primary-rgb), 0.05) 20%,
+                rgba(var(--color-primary-rgb), 0.15) 60%,
+                rgba(var(--color-primary-rgb), 0));
+        animation: prism-flare 2s infinite cubic-bezier(0.16, 1, 0.3, 1);
     }
 }
 
-@keyframes blob-move-1 {
+@keyframes prism-flare {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+// ============================================
+// 🎵 MUSIC BAR INLINE LOADER
+// ============================================
+
+.inline-loader-container {
+    display: inline-flex;
+    align-items: center;
+
+    .music-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 18px; // default height
+
+        &.size-sm {
+            height: 12px;
+            gap: 1.5px;
+
+            .bar {
+                width: 3px;
+            }
+        }
+
+        &.size-base {
+            height: 18px;
+            gap: 2px;
+
+            .bar {
+                width: 4px;
+            }
+        }
+
+        &.size-lg {
+            height: 24px;
+            gap: 3px;
+
+            .bar {
+                width: 5px;
+            }
+        }
+
+        .bar {
+            background-color: var(--color-primary);
+            border-radius: 2px;
+            display: inline-block;
+            height: 100%;
+            animation: equalizer-bounce 1s cubic-bezier(0.8, 0, 0.2, 1) infinite;
+            transform-origin: bottom;
+            will-change: transform;
+            opacity: 0.8;
+
+            &.bar-1 {
+                animation-delay: 0.0s;
+            }
+
+            &.bar-2 {
+                animation-delay: 0.15s;
+            }
+
+            &.bar-3 {
+                animation-delay: 0.3s;
+            }
+
+            &.bar-4 {
+                animation-delay: 0.45s;
+            }
+
+            &.bar-5 {
+                animation-delay: 0.6s;
+            }
+        }
+    }
+}
+
+@keyframes equalizer-bounce {
 
     0%,
     100% {
-        transform: translate(0, 0) scale(1);
+        transform: scaleY(0.1);
+        opacity: 0.5;
     }
 
-    33% {
-        transform: translate(30px, -20px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-20px, 30px) scale(0.9);
-    }
-}
-
-@keyframes blob-move-2 {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(-30px, 20px) scale(0.9);
-    }
-
-    66% {
-        transform: translate(20px, -30px) scale(1.1);
-    }
-}
-
-@keyframes blob-move-3 {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(10px, 40px) scale(1.2);
-    }
-
-    66% {
-        transform: translate(-40px, -10px) scale(0.8);
+    50% {
+        transform: scaleY(1);
+        opacity: 1;
+        box-shadow: 0 0 6px var(--color-primary-subtle);
     }
 }

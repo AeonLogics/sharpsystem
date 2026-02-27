@@ -23,7 +23,11 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY . .
 
-# Build the app
+# Accept the DATABASE_URL as a build argument
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+# Build the app with a live database connection
 RUN cargo leptos build --release -vv
 
 FROM debian:bookworm-slim AS runtime
