@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO handlers \n        (system_id, email, password_hash, user_name, handler_role)\n         VALUES ($1, $2, $3, $4, $5::public.handler_role) \n         RETURNING id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "handler_role",
+            "kind": {
+              "Enum": [
+                "system_admin",
+                "system_manager",
+                "system_salesman"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "844eb949b891d3099d261a07b6beb5b1eea38c40eba629c9755dfe04f7da085d"
+}

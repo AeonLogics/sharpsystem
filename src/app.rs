@@ -52,7 +52,7 @@ fn AppRouter() -> impl IntoView {
 #[component]
 fn AuthWrapper() -> impl IntoView {
     // 1. Kick off the database check IMMEDIATELY on the server.
-    let auth_resource = Resource::new(|| (), |_| async move { actions::get_user().await });
+    let auth_resource = Resource::new(|| (), |_| async move { actions::validate_session().await });
 
     // 2. Initialize our global state empty for now (starts as AuthState::Loading)
     let state = RwSignal::new(SystemState::default());

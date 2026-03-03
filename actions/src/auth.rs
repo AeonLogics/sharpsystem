@@ -14,12 +14,12 @@ use tower_sessions::Session;
 use leptos::prelude::*;
 use models::entities::User;
 use models::errors::SystemError;
-use models::payloads::{LoginPayload, SignupPayload};
+use models::payloads::{AuthenticateUserPayload, RegisterWorkspacePayload};
 use tracing::instrument;
 
-#[instrument(ret, err)]
-#[server(Signup)]
-pub async fn signup(payload: SignupPayload) -> Result<User, SystemError> {
+#[instrument(ret, err, skip_all, fields(email = %payload.email))]
+#[server(RegisterWorkspace)]
+pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<User, SystemError> {
     #[cfg(feature = "ssr")]
     {
         payload
@@ -97,8 +97,9 @@ pub async fn signup(payload: SignupPayload) -> Result<User, SystemError> {
     }
 }
 
-#[server(Login)]
-pub async fn login_handler(payload: LoginPayload) -> Result<User, SystemError> {
+#[instrument(err, skip_all, fields(email = %payload.email))]
+#[server(AuthenticateUser)]
+pub async fn authenticate_user(payload: AuthenticateUserPayload) -> Result<User, SystemError> {
     #[cfg(feature = "ssr")]
     {
         payload
@@ -150,14 +151,17 @@ pub async fn login_handler(payload: LoginPayload) -> Result<User, SystemError> {
     }
 }
 
-#[server(GetUser)]
-pub async fn get_user() -> Result<Option<User>, SystemError> {
+#[instrument(skip_all)]
+#[server(ValidateSession)]
+pub async fn validate_session() -> Result<Option<User>, SystemError> {
     {
-        leptos::logging::log!("==== GET_USER SERVER FUNCTION EXECUTED ====");
+        tracing::debug!("Executing ValidateSession server function");
 
         let pool = use_context::<PgPool>().ok_or_else(|| {
-            tracing::error!("CRITICAL: use_context::<PgPool>() returned None in get_user()");
-            SystemError::database("Database connection pool not found in context. Context missing!")
+            tracing::error!(
+                "CRITICAL: use_context::<PgPool>() returned None in validate_session()"
+            );
+            SystemError::database("Database connection pool not found in context.")
         })?;
 
         let session: Session = leptos_axum::extract()
@@ -169,9 +173,9 @@ pub async fn get_user() -> Result<Option<User>, SystemError> {
             .await
             .map_err(|e| SystemError::general(e.to_string()))?;
 
-        leptos::logging::log!(
-            "==== SESSION TOKEN RESOLVED ON SERVER: {:?} ====",
-            token.is_some()
+        tracing::debug!(
+            token_resolved = token.is_some(),
+            "Session token resolution check"
         );
 
         match token {
@@ -182,17 +186,21 @@ pub async fn get_user() -> Result<Option<User>, SystemError> {
                     .map_err(|e| SystemError::database(e.to_string()))?;
 
                 let user = get_session_user(&mut conn, &t).await?;
-                leptos::logging::log!("==== USER DATABASE FETCH: {:?} ====", user.is_some());
+                if let Some(ref u) = user {
+                    tracing::info!(email = %u.email, "Session successfully authenticated for user");
+                }
+                tracing::debug!(user_fetched = user.is_some(), "Database user fetch check");
                 Ok(user)
             }
             None => {
-                leptos::logging::log!("==== RETURNED NO USER ====");
+                tracing::debug!("No active session token found; returning no user.");
                 Ok(None)
             }
         }
     }
 }
 
+#[instrument(skip_all)]
 #[server(Logout)]
 pub async fn logout() -> Result<(), SystemError> {
     #[cfg(feature = "ssr")]

@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT handler_id as \"handler_id!\", user_name as \"user_name!\", email as \"email!\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" \n         FROM sessions \n         WHERE token = $1 AND expires_at > NOW()",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "handler_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "email!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "preferred_theme",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "system_handle!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "system_name!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "beaeb49f1b3ecdc09a86e5f4af4d9c6d526289c71bc1b2ad56c535e7152a0e63"
+}

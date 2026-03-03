@@ -1,9 +1,9 @@
-use actions::auth::Login;
+use actions::auth::AuthenticateUser;
 use leptos::prelude::*;
 use leptos_router::components::A;
 use models::shared::notifications::{Notification, NotificationLevel};
 use models::system_state::SystemState;
-use models::LoginPayload;
+use models::AuthenticateUserPayload;
 use std::sync::Arc;
 
 /// Login page component
@@ -18,15 +18,15 @@ pub fn LoginPage() -> impl IntoView {
     let (password, set_password) = signal(String::new());
 
     // Server action
-    let login_action = ServerAction::<Login>::new();
+    let login_action = ServerAction::<AuthenticateUser>::new();
     let login_loading = login_action.pending();
     let login_value = login_action.value();
 
     // Handle form submission
     let on_submit = move |ev: leptos::ev::SubmitEvent| {
         ev.prevent_default();
-        login_action.dispatch(Login {
-            payload: LoginPayload {
+        login_action.dispatch(AuthenticateUser {
+            payload: AuthenticateUserPayload {
                 email: email.get(),
                 password: password.get(),
             },

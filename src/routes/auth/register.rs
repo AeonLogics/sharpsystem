@@ -1,9 +1,9 @@
-use actions::{is_email_available, is_handle_available, Signup};
+use actions::{is_email_available, is_handle_available, RegisterWorkspace};
 use leptos::prelude::*;
 use leptos_router::components::A;
 use models::shared::notifications::{Notification, NotificationLevel};
 use models::system_state::SystemState;
-use models::SignupPayload;
+use models::RegisterWorkspacePayload;
 use std::sync::Arc;
 
 /// Register page component
@@ -78,9 +78,9 @@ pub fn RegisterPage() -> impl IntoView {
     });
 
     // Server action
-    let signup_action = ServerAction::<Signup>::new();
-    let signup_loading = signup_action.pending();
-    let signup_value = signup_action.value();
+    let register_action = ServerAction::<RegisterWorkspace>::new();
+    let register_loading = register_action.pending();
+    let register_value = register_action.value();
 
     let next_step = move |_| {
         let current_step = step.get();
@@ -89,8 +89,8 @@ pub fn RegisterPage() -> impl IntoView {
             match current_step {
                 0 => Ok(()), // Welcome step - no validation
                 1 => {
-                    SignupPayload::validate_system_name(&system_name.get())?;
-                    SignupPayload::validate_workspace_handle(&workspace_handle.get())?;
+                    RegisterWorkspacePayload::validate_system_name(&system_name.get())?;
+                    RegisterWorkspacePayload::validate_workspace_handle(&workspace_handle.get())?;
                     if let Some(Ok(available)) = handle_available.get_untracked() {
                         if !available {
                             return Err(models::auth::AuthError::InvalidInput(
@@ -101,7 +101,7 @@ pub fn RegisterPage() -> impl IntoView {
                     Ok(())
                 }
                 2 => {
-                    SignupPayload::validate_email(&email.get())?;
+                    RegisterWorkspacePayload::validate_email(&email.get())?;
                     if let Some(Ok(available)) = email_available.get_untracked() {
                         if !available {
                             return Err(models::auth::AuthError::InvalidInput(
@@ -119,7 +119,7 @@ pub fn RegisterPage() -> impl IntoView {
                             "Passwords do not match.".to_string(),
                         ))
                     } else {
-                        SignupPayload::validate_password(&p)
+                        RegisterWorkspacePayload::validate_password(&p)
                     }
                 }
                 _ => Ok(()),
@@ -132,8 +132,8 @@ pub fn RegisterPage() -> impl IntoView {
                     set_step.update(|s| *s += 1);
                 } else {
                     // Final submission
-                    signup_action.dispatch(Signup {
-                        payload: SignupPayload {
+                    register_action.dispatch(RegisterWorkspace {
+                        payload: RegisterWorkspacePayload {
                             user_name: user_name.get(),
                             system_name: system_name.get(),
                             workspace_handle: workspace_handle.get(),
@@ -164,7 +164,7 @@ pub fn RegisterPage() -> impl IntoView {
 
     // Watch for server errors and trigger toasts
     Effect::new(move |_| {
-        if let Some(Err(e)) = signup_value.get() {
+        if let Some(Err(e)) = register_value.get() {
             state.update(|s| {
                 s.add_toast(Arc::new(e));
             });
@@ -173,7 +173,7 @@ pub fn RegisterPage() -> impl IntoView {
 
     // Watch for success
     Effect::new(move |_| {
-        if let Some(Ok(user)) = signup_value.get() {
+        if let Some(Ok(user)) = register_value.get() {
             state.update(|s| {
                 s.set_user(user);
                 s.add_toast(Arc::new(Notification::new(
@@ -299,7 +299,7 @@ pub fn RegisterPage() -> impl IntoView {
                                                     if handle.len() < 3 {
                                                          view! { <span class="opacity-30">"Minimum 3 characters"</span> }.into_any()
                                                     } else {
-                                                        match SignupPayload::validate_workspace_handle(&handle) {
+                                                        match RegisterWorkspacePayload::validate_workspace_handle(&handle) {
                                                             Err(models::auth::AuthError::InvalidInput(e)) if e.contains("reserved") => {
                                                                 view! { <span class="text-red-500">"✗ Reserved Handle"</span> }.into_any()
                                                             },
@@ -434,10 +434,10 @@ pub fn RegisterPage() -> impl IntoView {
                                     type="button"
                                     class="btn btn-primary glow-primary flex-[2]"
                                     on:click=next_step
-                                    disabled=move || signup_loading.get() || (step.get() == 1 && (workspace_handle.get().len() < 3 || matches!(handle_available.get(), Some(Ok(false)))))
+                                    disabled=move || register_loading.get() || (step.get() == 1 && (workspace_handle.get().len() < 3 || matches!(handle_available.get(), Some(Ok(false)))))
                                 >
                                     {move || {
-                                        if signup_loading.get() {
+                                        if register_loading.get() {
                                             "INITIALIZING..."
                                         } else if step.get() == 0 {
                                             "START INITIALIZATION"

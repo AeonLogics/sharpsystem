@@ -14,15 +14,24 @@ const RESERVED_HANDLES: &[&str] = &[
     "root",
 ];
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LoginPayload {
+#[derive(Clone, Serialize, Deserialize)]
+pub struct AuthenticateUserPayload {
     pub email: String,
     pub password: String,
 }
 
-impl LoginPayload {
+impl std::fmt::Debug for AuthenticateUserPayload {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AuthenticateUserPayload")
+            .field("email", &self.email)
+            .field("password", &"***")
+            .finish()
+    }
+}
+
+impl AuthenticateUserPayload {
     pub fn validate(&self) -> Result<(), crate::auth::AuthError> {
-        SignupPayload::validate_email(&self.email)?;
+        RegisterWorkspacePayload::validate_email(&self.email)?;
         if self.password.is_empty() {
             return Err(crate::auth::AuthError::InvalidInput(
                 "Password is required.".to_string(),
@@ -32,8 +41,8 @@ impl LoginPayload {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SignupPayload {
+#[derive(Clone, Serialize, Deserialize)]
+pub struct RegisterWorkspacePayload {
     pub user_name: String,
     pub system_name: String,
     pub workspace_handle: String,
@@ -42,7 +51,20 @@ pub struct SignupPayload {
     pub confirm_password: String,
 }
 
-impl SignupPayload {
+impl std::fmt::Debug for RegisterWorkspacePayload {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RegisterWorkspacePayload")
+            .field("user_name", &self.user_name)
+            .field("system_name", &self.system_name)
+            .field("workspace_handle", &self.workspace_handle)
+            .field("email", &self.email)
+            .field("password", &"***")
+            .field("confirm_password", &"***")
+            .finish()
+    }
+}
+
+impl RegisterWorkspacePayload {
     pub fn validate(&self) -> Result<(), crate::auth::AuthError> {
         Self::validate_user_name(&self.user_name)?;
         Self::validate_system_name(&self.system_name)?;
@@ -135,11 +157,11 @@ mod tests {
 
     #[test]
     fn test_validate_workspace_handle() {
-        assert!(SignupPayload::validate_workspace_handle("valid-handle-123").is_ok());
-        assert!(SignupPayload::validate_workspace_handle("sh").is_err()); // Too short
-        assert!(SignupPayload::validate_workspace_handle("Invalid_Handle").is_err()); // Uppercase and underscore
-        assert!(SignupPayload::validate_workspace_handle("handle!").is_err()); // Special char
-        assert!(SignupPayload::validate_workspace_handle("admin").is_err()); // Reserved
-        assert!(SignupPayload::validate_workspace_handle("api").is_err()); // Reserved
+        assert!(RegisterWorkspacePayload::validate_workspace_handle("valid-handle-123").is_ok());
+        assert!(RegisterWorkspacePayload::validate_workspace_handle("sh").is_err()); // Too short
+        assert!(RegisterWorkspacePayload::validate_workspace_handle("Invalid_Handle").is_err()); // Uppercase and underscore
+        assert!(RegisterWorkspacePayload::validate_workspace_handle("handle!").is_err()); // Special char
+        assert!(RegisterWorkspacePayload::validate_workspace_handle("admin").is_err()); // Reserved
+        assert!(RegisterWorkspacePayload::validate_workspace_handle("api").is_err()); // Reserved
     }
 }

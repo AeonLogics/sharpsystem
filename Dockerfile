@@ -21,7 +21,8 @@ COPY . .
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
-# Build the app with a live database connection
+# Use offline mode for sqlx to build without a live database connection
+ENV SQLX_OFFLINE=true
 RUN cargo leptos build --release -vv
 
 FROM debian:bookworm-slim AS runtime

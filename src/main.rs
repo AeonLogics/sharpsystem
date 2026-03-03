@@ -16,7 +16,7 @@ async fn main() {
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
                 tracing_subscriber::EnvFilter::new(
-                    "info,sqlx=debug,hyper=warn,tower=warn,axum=warn",
+                    "info,sqlx=warn,hyper=warn,tower=warn,axum=warn,tower_sessions=error,tower_sessions_core=error,sharp_system=info",
                 )
             }),
         )
@@ -44,10 +44,13 @@ async fn main() {
 
     let pool = match pool_result {
         Ok(p) => {
+            // Disabled automatic DB migrations. User prefers to run `sqlx migrate run` manually.
+            /*
             sqlx::migrate!("./migrations")
                 .run(&p)
                 .await
                 .expect("Failed to apply database migrations");
+            */
             Some(p)
         }
         Err(e) => {

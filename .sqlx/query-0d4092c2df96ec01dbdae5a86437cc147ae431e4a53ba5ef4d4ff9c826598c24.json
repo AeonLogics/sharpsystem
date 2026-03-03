@@ -1,0 +1,93 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            h.id as handler_id,\n            h.password_hash,\n            h.user_name,\n            h.email,\n            h.handler_role as \"handler_role!: HandlerRole\",\n            h.avatar_url,\n            h.bio,\n            h.preferred_theme as \"preferred_theme!\",\n            s.id as system_id,\n            s.system_handle as \"workspace_handle!\",\n            s.system_name as \"system_name!\"\n        FROM handlers h\n        JOIN systems s ON h.system_id = s.id\n        WHERE h.email = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "handler_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "password_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "handler_role!: HandlerRole",
+        "type_info": {
+          "Custom": {
+            "name": "handler_role",
+            "kind": {
+              "Enum": [
+                "system_admin",
+                "system_manager",
+                "system_salesman"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "preferred_theme!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "system_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "workspace_handle!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "system_name!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "0d4092c2df96ec01dbdae5a86437cc147ae431e4a53ba5ef4d4ff9c826598c24"
+}

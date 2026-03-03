@@ -1,7 +1,7 @@
 #[cfg(feature = "ssr")]
 use argon2::{Argon2, PasswordHasher};
 #[cfg(feature = "ssr")]
-use models::{HandlerRole, SignupPayload, SystemError};
+use models::{HandlerRole, RegisterWorkspacePayload, SystemError};
 #[cfg(feature = "ssr")]
 use password_hash::SaltString;
 #[cfg(feature = "ssr")]
@@ -16,14 +16,14 @@ use tracing::instrument;
 #[cfg(feature = "ssr")]
 pub async fn create_system(
     tx: &mut PgConnection,
-    payload: &SignupPayload,
+    payload: &RegisterWorkspacePayload,
     owner_id: &Uuid,
 ) -> Result<Uuid, SystemError> {
     let avatar_url = format!(
         "https://api.dicebear.com/7.x/initials/svg?seed={}",
         payload.system_name
     );
-    let record = sqlx::query!(
+    let id = sqlx::query_scalar!(
         "INSERT INTO systems (owner_id, system_handle, system_name, avatar_url) VALUES ($1, $2, $3, $4) RETURNING id",
         *owner_id,
         payload.workspace_handle,
@@ -34,18 +34,18 @@ pub async fn create_system(
     .await
     .map_err(|e| SystemError::database(e.to_string()))?;
 
-    Ok(record.id)
+    Ok(id)
 }
 
 #[cfg(feature = "ssr")]
 pub async fn create_handler(
     tx: &mut PgConnection,
     system_id: &Uuid,
-    payload: &SignupPayload,
+    payload: &RegisterWorkspacePayload,
     password_hash: &str,
     role: HandlerRole,
 ) -> Result<Uuid, SystemError> {
-    let record = sqlx::query!(
+    let id = sqlx::query_scalar!(
         "INSERT INTO handlers 
         (system_id, email, password_hash, user_name, handler_role)
          VALUES ($1, $2, $3, $4, $5::public.handler_role) 
@@ -60,7 +60,7 @@ pub async fn create_handler(
     .await
     .map_err(|e| SystemError::database(e.to_string()))?;
 
-    Ok(record.id)
+    Ok(id)
 }
 
 #[cfg(feature = "ssr")]
@@ -78,11 +78,24 @@ pub async fn create_session(
     data: &crate::db_ops::handler::HandlerAuthData,
     token: &str,
 ) -> Result<SessionBundle, SystemError> {
-    let record = sqlx::query!(
-        "INSERT INTO sessions 
+    struct SessionRecord {
+        token: String,
+        handler_id: Uuid,
+        user_name: String,
+        email: String,
+        avatar_url: Option<String>,
+        bio: Option<String>,
+        preferred_theme: Option<String>,
+        system_handle: String,
+        system_name: String,
+    }
+
+    let record = sqlx::query_as!(
+        SessionRecord,
+        r#"INSERT INTO sessions 
         (handler_id, system_id, token, handler_role, user_name, email, avatar_url, bio, preferred_theme, system_handle, system_name) 
         VALUES ($1, $2, $3, $4::public.handler_role, $5, $6, $7, $8, $9, $10, $11) 
-        RETURNING token, handler_id, user_name, email, avatar_url, bio, preferred_theme, system_handle, system_name",
+        RETURNING token as "token!", handler_id as "handler_id!", user_name as "user_name!", email as "email!", avatar_url, bio, preferred_theme, system_handle as "system_handle!", system_name as "system_name!""#,
         data.handler_id,
         data.system_id,
         token,
@@ -102,24 +115,36 @@ pub async fn create_session(
     Ok(SessionBundle {
         token: record.token,
         user: User {
-            id: data.handler_id,
-            email: data.email.clone(),
-            workspace_handle: data.workspace_handle.clone(),
-            system_name: data.system_name.clone(),
-            avatar_url: data.avatar_url.clone(),
-            bio: data.bio.clone(),
-            preferred_theme: data.preferred_theme.clone(),
+            id: record.handler_id,
+            email: record.email,
+            workspace_handle: record.system_handle,
+            system_name: record.system_name,
+            avatar_url: record.avatar_url,
+            bio: record.bio,
+            preferred_theme: record.preferred_theme,
         },
     })
 }
 
 #[cfg(feature = "ssr")]
-#[instrument(skip(tx), ret, err)]
+#[instrument(skip_all)]
 pub async fn get_session_user(
     tx: &mut PgConnection,
     token: &str,
 ) -> Result<Option<User>, SystemError> {
-    let record = sqlx::query!(
+    struct UserRecord {
+        handler_id: Uuid,
+        user_name: String,
+        email: String,
+        avatar_url: Option<String>,
+        bio: Option<String>,
+        preferred_theme: Option<String>,
+        system_handle: String,
+        system_name: String,
+    }
+
+    let record = sqlx::query_as!(
+        UserRecord,
         "SELECT handler_id as \"handler_id!\", user_name as \"user_name!\", email as \"email!\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" 
          FROM sessions 
          WHERE token = $1 AND expires_at > NOW()",

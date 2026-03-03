@@ -27,7 +27,22 @@ pub async fn get_handler_auth_data(
     tx: &mut PgConnection,
     email: &str,
 ) -> Result<HandlerAuthData, SystemError> {
-    let record = sqlx::query!(
+    struct HandlerRecord {
+        handler_id: Uuid,
+        password_hash: String,
+        user_name: String,
+        email: String,
+        handler_role: HandlerRole,
+        avatar_url: Option<String>,
+        bio: Option<String>,
+        preferred_theme: String,
+        system_id: Uuid,
+        workspace_handle: String,
+        system_name: String,
+    }
+
+    let record = sqlx::query_as!(
+        HandlerRecord,
         r#"
         SELECT 
             h.id as handler_id,
