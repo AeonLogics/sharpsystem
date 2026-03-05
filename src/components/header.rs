@@ -16,6 +16,22 @@ pub fn Header() -> impl IntoView {
                     <span class="logo-text">"SHARP"<span class="logo-accent">"SYSTEM"</span></span>
                 </div>
 
+                // Middle: Main Navigation
+                {move || match state.get().auth_state {
+                    AuthState::Authenticated(_) => view! {
+                        <nav class="header-nav flex gap-6 text-sm font-medium">
+                            <a href="/system/dashboard" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">"Dashboard"</a>
+                            <a href="/system/pos" class="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-bold transition-colors flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="20.5" r="1"/><circle cx="18" cy="20.5" r="1"/><path d="M2.5 2.5h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6l1.6-8.4H7.1"/></svg>
+                                "POS"
+                            </a>
+                            <a href="/system/inventory" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">"Inventory"</a>
+                            <a href="/system/catalog" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">"Catalog"</a>
+                        </nav>
+                    }.into_any(),
+                    _ => view! { <div></div> }.into_any(),
+                }}
+
                 // Right Side: User Controls
                 <div class="header-controls">
                     {move || match state.get().auth_state {
@@ -29,10 +45,7 @@ pub fn Header() -> impl IntoView {
 
                         AuthState::Authenticated(user) => {
                             let avatar = user.avatar_url.clone().unwrap_or_else(|| {
-                                format!(
-                                    "https://ui-avatars.com/api/?name={}&background=8B5CF6&color=fff",
-                                    user.system_name
-                                )
+                                format!("https://api.dicebear.com/7.x/initials/svg?seed={}", user.email)
                             });
 
                             view! {

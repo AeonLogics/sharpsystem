@@ -1,5 +1,3 @@
-#![recursion_limit = "512"]
-
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
@@ -11,7 +9,6 @@ async fn main() {
     use tower_sessions::{Expiry, SessionManagerLayer};
     use tower_sessions_sqlx_store::PostgresStore;
 
-    // Initialize tracing with env-filter to catch sqlx errors
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -38,82 +35,80 @@ async fn main() {
         .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/sharp_system".to_string());
 
     let pool_result = sqlx::postgres::PgPoolOptions::new()
+        .max_connections(20)
+        .min_connections(5)
+        .idle_timeout(std::time::Duration::from_secs(600))
         .acquire_timeout(std::time::Duration::from_secs(5))
         .connect(&database_url)
         .await;
 
     let pool = match pool_result {
-        Ok(p) => {
-            // Disabled automatic DB migrations. User prefers to run `sqlx migrate run` manually.
-            /*
-            sqlx::migrate!("./migrations")
-                .run(&p)
-                .await
-                .expect("Failed to apply database migrations");
-            */
-            Some(p)
-        }
+        Ok(p) => Some(p),
         Err(e) => {
             log!("Warning: Could not connect to database: {}. System functions depending on the database will fail.", e);
             None
         }
     };
 
-    let session_store = PostgresStore::new(pool.clone().unwrap())
-        .with_table_name("tower_sessions")
-        .expect("Invalid table name");
-    session_store.migrate().await.expect("Migration failed");
+    if let Some(pool) = pool.clone() {
+        let session_store = PostgresStore::new(pool.clone())
+            .with_table_name("tower_sessions")
+            .expect("Invalid table name");
+        session_store.migrate().await.expect("Migration failed");
 
-    let session_layer = SessionManagerLayer::new(session_store)
-        .with_secure(false)
-        .with_http_only(true)
-        .with_expiry(Expiry::OnInactivity(time::Duration::days(7)));
-    use axum::http::header::CACHE_CONTROL;
-    use tower_http::{compression::CompressionLayer, set_header::SetResponseHeaderLayer};
+        let session_layer = SessionManagerLayer::new(session_store)
+            .with_secure(false)
+            .with_http_only(true)
+            .with_expiry(Expiry::OnInactivity(time::Duration::days(7)));
 
-    let app = Router::new()
-        .leptos_routes_with_context(
-            &leptos_options,
-            routes,
-            {
-                let pool = pool.clone();
-                move || {
-                    if let Some(pool) = pool.clone() {
-                        provide_context(pool);
+        use axum::http::header::CACHE_CONTROL;
+        use tower_http::{compression::CompressionLayer, set_header::SetResponseHeaderLayer};
+
+        let app = Router::new()
+            .leptos_routes_with_context(
+                &leptos_options,
+                routes,
+                {
+                    let pool = Some(pool.clone());
+                    move || {
+                        if let Some(pool) = pool.clone() {
+                            provide_context(pool);
+                        }
                     }
-                }
-            },
-            {
-                let leptos_options = leptos_options.clone();
-                move || shell(leptos_options.clone())
-            },
-        )
-        .layer(SetResponseHeaderLayer::if_not_present(
-            CACHE_CONTROL,
-            axum::http::HeaderValue::from_static("no-cache, no-store, must-revalidate"),
-        ))
-        .fallback(leptos_axum::file_and_error_handler_with_context(
-            {
-                let pool = pool.clone();
-                move || {
-                    if let Some(pool) = pool.clone() {
-                        provide_context(pool);
+                },
+                {
+                    let leptos_options = leptos_options.clone();
+                    move || shell(leptos_options.clone())
+                },
+            )
+            .layer(SetResponseHeaderLayer::if_not_present(
+                CACHE_CONTROL,
+                axum::http::HeaderValue::from_static("public, max-age=3600, must-revalidate"),
+            ))
+            .fallback(leptos_axum::file_and_error_handler_with_context(
+                {
+                    let pool = Some(pool.clone());
+                    move || {
+                        if let Some(pool) = pool.clone() {
+                            provide_context(pool);
+                        }
                     }
-                }
-            },
-            shell,
-        ))
-        .layer(CompressionLayer::new())
-        .layer(session_layer)
-        .with_state(leptos_options);
+                },
+                shell,
+            ))
+            .layer(CompressionLayer::new())
+            .layer(session_layer)
+            .with_state(leptos_options);
 
-    // run our app with hyper
-    // `axum::Server` is a re-export of `hyper::Server`
-    log!("listening on http://{}", &addr);
-    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
+        log!("listening on http://{}", &addr);
+        let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+        axum::serve(listener, app.into_make_service())
+            .await
+            .unwrap();
+    } else {
+        log!("CRITICAL: Database pool not available. Shutting down.");
+        std::process::exit(1);
+    }
 }
 
 #[cfg(not(feature = "ssr"))]

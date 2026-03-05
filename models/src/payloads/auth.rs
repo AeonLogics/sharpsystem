@@ -43,7 +43,6 @@ impl AuthenticateUserPayload {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct RegisterWorkspacePayload {
-    pub user_name: String,
     pub system_name: String,
     pub workspace_handle: String,
     pub email: String,
@@ -54,7 +53,6 @@ pub struct RegisterWorkspacePayload {
 impl std::fmt::Debug for RegisterWorkspacePayload {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RegisterWorkspacePayload")
-            .field("user_name", &self.user_name)
             .field("system_name", &self.system_name)
             .field("workspace_handle", &self.workspace_handle)
             .field("email", &self.email)
@@ -66,21 +64,11 @@ impl std::fmt::Debug for RegisterWorkspacePayload {
 
 impl RegisterWorkspacePayload {
     pub fn validate(&self) -> Result<(), crate::auth::AuthError> {
-        Self::validate_user_name(&self.user_name)?;
         Self::validate_system_name(&self.system_name)?;
         Self::validate_workspace_handle(&self.workspace_handle)?;
         Self::validate_email(&self.email)?;
         Self::validate_password(&self.password)?;
         Self::validate_confirm_password(&self.password, &self.confirm_password)?;
-        Ok(())
-    }
-
-    pub fn validate_user_name(name: &str) -> Result<(), crate::auth::AuthError> {
-        if name.trim().is_empty() {
-            return Err(crate::auth::AuthError::InvalidInput(
-                "User name is required.".to_string(),
-            ));
-        }
         Ok(())
     }
 

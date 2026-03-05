@@ -4,6 +4,7 @@ use sqlx::PgPool;
 
 #[server]
 pub async fn check_system_health() -> Result<String, ServerFnError> {
+    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
     Ok("I am working ok".to_string())
 }
 

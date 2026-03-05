@@ -1,6 +1,7 @@
 #[cfg(feature = "ssr")]
 use crate::db_ops::auth::{
-    create_session, delete_session, get_session_user, hash_password, verify_password,
+    create_session, delete_session, get_session_user, hash_password, refresh_session_expiry,
+    verify_password,
 };
 #[cfg(feature = "ssr")]
 use crate::db_ops::{create_handler, create_system, get_handler_auth_data};
@@ -30,7 +31,6 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
             SystemError::database("Database connection pool not found in context.")
         })?;
 
-        // 1. Prepare data
         let password_hash = hash_password(&payload.password).await;
         let owner_id = uuid::Uuid::new_v4();
 
@@ -39,10 +39,8 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
             .await
             .map_err(|e| SystemError::database(e.to_string()))?;
 
-        // 2. Create System
         let system_id = create_system(&mut tx, &payload, &owner_id).await?;
 
-        // 3. Create Handler (Owner)
         let handler_id = create_handler(
             &mut tx,
             &system_id,
@@ -52,7 +50,6 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
         )
         .await?;
 
-        // 4. Create Session (Bundle contains Token + User)
         let session: Session = leptos_axum::extract()
             .await
             .map_err(|e| SystemError::general(e.to_string()))?;
@@ -65,7 +62,6 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
         let auth_data = crate::db_ops::handler::HandlerAuthData {
             handler_id,
             password_hash: password_hash.clone(),
-            user_name: payload.user_name.clone(),
             email: payload.email.clone(),
             handler_role: HandlerRole::SystemAdmin,
             avatar_url: Some(avatar_url.clone()),
@@ -115,15 +111,12 @@ pub async fn authenticate_user(payload: AuthenticateUserPayload) -> Result<User,
             .await
             .map_err(|e| SystemError::database(e.to_string()))?;
 
-        // 1. Fetch handler and system info
         let data = get_handler_auth_data(&mut tx, &payload.email).await?;
 
-        // 2. Verify password
         if !verify_password(&payload.password, &data.password_hash)? {
             return Err(SystemError::unauthorized("Invalid credentials"));
         }
 
-        // 3. Create Session (Bundle contains Token + User)
         let session: Session = leptos_axum::extract()
             .await
             .map_err(|e| SystemError::general(e.to_string()))?;
@@ -131,12 +124,10 @@ pub async fn authenticate_user(payload: AuthenticateUserPayload) -> Result<User,
         let token = uuid::Uuid::new_v4().to_string();
         let bundle = create_session(&mut tx, &data, &token).await?;
 
-        // Commit BEFORE sending cookie to ensure data is safe
         tx.commit()
             .await
             .map_err(|e| SystemError::database(e.to_string()))?;
 
-        // 4. Set Cookie & Return
         session
             .insert("session_token", bundle.token)
             .await
@@ -154,6 +145,7 @@ pub async fn authenticate_user(payload: AuthenticateUserPayload) -> Result<User,
 #[instrument(skip_all)]
 #[server(ValidateSession)]
 pub async fn validate_session() -> Result<Option<User>, SystemError> {
+    #[cfg(feature = "ssr")]
     {
         tracing::debug!("Executing ValidateSession server function");
 
@@ -188,6 +180,7 @@ pub async fn validate_session() -> Result<Option<User>, SystemError> {
                 let user = get_session_user(&mut conn, &t).await?;
                 if let Some(ref u) = user {
                     tracing::info!(email = %u.email, "Session successfully authenticated for user");
+                    let _ = refresh_session_expiry(&mut conn, &t).await;
                 }
                 tracing::debug!(user_fetched = user.is_some(), "Database user fetch check");
                 Ok(user)
@@ -197,6 +190,10 @@ pub async fn validate_session() -> Result<Option<User>, SystemError> {
                 Ok(None)
             }
         }
+    }
+    #[cfg(not(feature = "ssr"))]
+    {
+        unreachable!()
     }
 }
 

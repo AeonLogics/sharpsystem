@@ -2,7 +2,7 @@ use crate::entities::User;
 use crate::shared::notifications::SystemNotification;
 use std::sync::Arc;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq, Eq)]
 pub enum AuthState {
     #[default]
     Loading,
@@ -10,11 +10,26 @@ pub enum AuthState {
     Unauthenticated,
 }
 
+impl AuthState {
+    pub fn is_loading(&self) -> bool {
+        matches!(self, AuthState::Loading)
+    }
+
+    pub fn is_authenticated(&self) -> bool {
+        matches!(self, AuthState::Authenticated(_))
+    }
+
+    pub fn is_unauthenticated(&self) -> bool {
+        matches!(self, AuthState::Unauthenticated)
+    }
+}
+
 #[derive(Clone, Default)]
 pub struct SystemState {
     pub toasts: Vec<Arc<dyn SystemNotification + Send + Sync>>,
     pub modal: Option<Arc<dyn SystemNotification + Send + Sync>>,
     pub auth_state: AuthState,
+    pub active_workspace_handle: Option<String>,
 }
 
 impl SystemState {

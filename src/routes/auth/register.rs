@@ -15,7 +15,6 @@ pub fn RegisterPage() -> impl IntoView {
     let navigate = leptos_router::hooks::use_navigate();
 
     // Form field signals
-    let (user_name, set_user_name) = signal(String::new());
     let (system_name, set_system_name) = signal(String::new());
     let (workspace_handle, set_workspace_handle) = signal(String::new());
     let (email, set_email) = signal(String::new());
@@ -134,7 +133,6 @@ pub fn RegisterPage() -> impl IntoView {
                     // Final submission
                     register_action.dispatch(RegisterWorkspace {
                         payload: RegisterWorkspacePayload {
-                            user_name: user_name.get(),
                             system_name: system_name.get(),
                             workspace_handle: workspace_handle.get(),
                             email: email.get(),
@@ -253,17 +251,7 @@ pub fn RegisterPage() -> impl IntoView {
                                     }.into_any(),
                                     1 => view! {
                                         <div class="form-group slide-in">
-                                            <label for="user_name">"Identity // Your Full Name"</label>
-                                            <input
-                                                type="text"
-                                                id="user_name"
-                                                placeholder="e.g. John Doe"
-                                                on:input=move |ev| set_user_name.set(event_target_value(&ev))
-                                                prop:value=user_name
-                                                required
-                                            />
-
-                                            <label for="system_name" class="mt-4">"Organization // Display Name"</label>
+                                            <label for="system_name">"Organization // Display Name"</label>
                                             <input
                                                 type="text"
                                                 id="system_name"
@@ -400,10 +388,6 @@ pub fn RegisterPage() -> impl IntoView {
                                     }.into_any(),
                                     _ => view! {
                                         <div class="review-step slide-in">
-                                            <div class="review-item">
-                                                <span class="label">"USER"</span>
-                                                <span class="value">{user_name}</span>
-                                            </div>
                                             <div class="review-item">
                                                 <span class="label">"ORG"</span>
                                                 <span class="value">{system_name}</span>

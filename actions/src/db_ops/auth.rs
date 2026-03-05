@@ -47,13 +47,12 @@ pub async fn create_handler(
 ) -> Result<Uuid, SystemError> {
     let id = sqlx::query_scalar!(
         "INSERT INTO handlers 
-        (system_id, email, password_hash, user_name, handler_role)
-         VALUES ($1, $2, $3, $4, $5::public.handler_role) 
+        (system_id, email, password_hash, handler_role)
+         VALUES ($1, $2, $3, $4::public.handler_role) 
          RETURNING id",
         system_id,
         payload.email,
         password_hash,
-        payload.user_name,
         role as _
     )
     .fetch_one(&mut *tx)
@@ -81,7 +80,7 @@ pub async fn create_session(
     struct SessionRecord {
         token: String,
         handler_id: Uuid,
-        user_name: String,
+        system_id: Uuid,
         email: String,
         avatar_url: Option<String>,
         bio: Option<String>,
@@ -93,14 +92,13 @@ pub async fn create_session(
     let record = sqlx::query_as!(
         SessionRecord,
         r#"INSERT INTO sessions 
-        (handler_id, system_id, token, handler_role, user_name, email, avatar_url, bio, preferred_theme, system_handle, system_name) 
-        VALUES ($1, $2, $3, $4::public.handler_role, $5, $6, $7, $8, $9, $10, $11) 
-        RETURNING token as "token!", handler_id as "handler_id!", user_name as "user_name!", email as "email!", avatar_url, bio, preferred_theme, system_handle as "system_handle!", system_name as "system_name!""#,
+        (handler_id, system_id, token, handler_role, email, avatar_url, bio, preferred_theme, system_handle, system_name) 
+        VALUES ($1, $2, $3, $4::public.handler_role, $5, $6, $7, $8, $9, $10) 
+        RETURNING token as "token!", handler_id as "handler_id!", system_id as "system_id!", email as "email!", avatar_url, bio, preferred_theme, system_handle as "system_handle!", system_name as "system_name!""#,
         data.handler_id,
         data.system_id,
         token,
         data.handler_role as _,
-        data.user_name,
         data.email,
         data.avatar_url,
         data.bio,
@@ -116,6 +114,7 @@ pub async fn create_session(
         token: record.token,
         user: User {
             id: record.handler_id,
+            system_id: record.system_id,
             email: record.email,
             workspace_handle: record.system_handle,
             system_name: record.system_name,
@@ -134,7 +133,7 @@ pub async fn get_session_user(
 ) -> Result<Option<User>, SystemError> {
     struct UserRecord {
         handler_id: Uuid,
-        user_name: String,
+        system_id: Uuid,
         email: String,
         avatar_url: Option<String>,
         bio: Option<String>,
@@ -145,7 +144,7 @@ pub async fn get_session_user(
 
     let record = sqlx::query_as!(
         UserRecord,
-        "SELECT handler_id as \"handler_id!\", user_name as \"user_name!\", email as \"email!\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" 
+        "SELECT handler_id as \"handler_id!\", system_id as \"system_id!\", email as \"email!\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" 
          FROM sessions 
          WHERE token = $1 AND expires_at > NOW()",
         token
@@ -157,6 +156,7 @@ pub async fn get_session_user(
     match record {
         Some(r) => Ok(Some(User {
             id: r.handler_id,
+            system_id: r.system_id,
             email: r.email,
             workspace_handle: r.system_handle,
             system_name: r.system_name,
@@ -174,6 +174,19 @@ pub async fn delete_session(tx: &mut PgConnection, token: &str) -> Result<(), Sy
         .execute(&mut *tx)
         .await
         .map_err(|e| SystemError::database(e.to_string()))?;
+
+    Ok(())
+}
+
+#[cfg(feature = "ssr")]
+pub async fn refresh_session_expiry(tx: &mut PgConnection, token: &str) -> Result<(), SystemError> {
+    sqlx::query!(
+        "UPDATE sessions SET expires_at = NOW() + INTERVAL '7 days' WHERE token = $1",
+        token
+    )
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| SystemError::database(e.to_string()))?;
 
     Ok(())
 }

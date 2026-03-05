@@ -1,10 +1,12 @@
 pub mod alert_modal;
+pub mod guard;
 pub mod header;
 pub mod loading;
 pub mod notifier;
 pub mod themed_input;
 
 pub use alert_modal::*;
+pub use guard::*;
 pub use header::Header;
 pub use loading::*;
 pub use notifier::*;
