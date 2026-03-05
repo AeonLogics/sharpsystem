@@ -121,7 +121,6 @@ pub fn CatalogPage() -> impl IntoView {
                                 <span class="slider"></span>
                             </div>
                         </label>
-                        <input type="hidden" name="is_tracked" value="false" />
 
                         <div class="flex justify-end mt-4 pt-4 border-t border-[var(--border-default)]">
                             <input

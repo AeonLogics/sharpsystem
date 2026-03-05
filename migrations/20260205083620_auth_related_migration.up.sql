@@ -13,7 +13,7 @@ CREATE TABLE systems(
     system_name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    avatar_url TEXT DEFAULT 'https://api.dicebear.com/7.x/initials/svg'
+    avatar_url TEXT DEFAULT 'https://api.dicebear.com/7.x/initials/svg?'
 );
 -- 2. Node Handlers (Branded Identity)
 CREATE TABLE handlers (
@@ -21,6 +21,7 @@ CREATE TABLE handlers (
     system_id UUID REFERENCES systems(id) ON DELETE CASCADE,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    user_name TEXT NOT NULL,
     handler_role handler_role DEFAULT 'system_salesman',
     avatar_url TEXT,
     bio TEXT,
@@ -35,6 +36,7 @@ CREATE TABLE sessions (
     handler_id UUID REFERENCES handlers(id) ON DELETE CASCADE,
     token TEXT NOT NULL UNIQUE,
     handler_role handler_role NOT NULL,
+    user_name TEXT NOT NULL,
     email TEXT NOT NULL,
     avatar_url TEXT,
     bio TEXT,

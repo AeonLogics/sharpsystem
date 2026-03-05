@@ -38,7 +38,7 @@ pub fn App() -> impl IntoView {
             if let Some(outcome) = res {
                 match outcome {
                     Ok(Some(user)) => state.update(|s| s.set_user(user.clone())),
-                    Err(e) => state.update(|s| s.set_unauthenticated()),
+                    Err(_e) => state.update(|s| s.set_unauthenticated()),
                     _ => state.update(|s| s.set_unauthenticated()),
                 }
             }

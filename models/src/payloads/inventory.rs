@@ -8,5 +8,6 @@ pub struct AddProductPayload {
 
     pub sku: Option<String>,
     pub category: Option<String>,
+    #[serde(default)]
     pub is_tracked: bool,
 }

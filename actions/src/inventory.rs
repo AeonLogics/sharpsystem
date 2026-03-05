@@ -3,6 +3,7 @@ use models::entities::Product;
 use models::errors::SystemError;
 use models::payloads::AddProductPayload;
 use tracing::instrument;
+#[cfg(feature = "ssr")]
 use validator::Validate;
 
 #[cfg(feature = "ssr")]
@@ -51,13 +52,9 @@ pub async fn add_product(payload: AddProductPayload) -> Result<Product, SystemEr
                     .map_err(|e| SystemError::database(e.to_string()))?;
 
                 // 4. Insert the actual product!
-                let product = crate::db_ops::inventory::insert_product(
-                    &mut tx,
-                    &payload,
-                    &user.system_id,
-                    &user.id,
-                )
-                .await?;
+                let product =
+                    crate::db_ops::insert_product(&mut tx, &payload, &user.system_id, &user.id)
+                        .await?;
 
                 tx.commit()
                     .await
