@@ -1,13 +1,13 @@
 # Authentication & Identity Flow
 
-SharpSystem's authentication is designed as a secure, multi-step "Bootstrap" protocol that initializes both user identity and organizational context.
+SharpSystem's authentication is designed as a secure, multi-step "Bootstrap" protocol that initializes both user identity and system context.
 
 ## ◈ Multi-Step Initialization
 
 The registration wizard follows a strict validation sequence to ensure data integrity:
 
 1. **Step 0: Bootstrap**: Introductory layer to explain the initialization process.
-2. **Step 1: Organization**: Creation of the parent tenant.
+2. **Step 1: System**: Creation of the parent System workspace.
 3. **Step 2: Identity**: Username selection (must be unique).
 4. **Step 3: Protocol**: Email verification.
 5. **Step 4: Security**: Private key (password) generation with "Peep" visibility toggle.
@@ -15,9 +15,9 @@ The registration wizard follows a strict validation sequence to ensure data inte
 
 ## ◈ Technical Implementation
 
-- **Server-Side**: Registration logic is handled in `actions/src/auth.rs` via the `Signup` server function.
+- **Server-Side**: Registration logic is handled in `actions/src/auth.rs` via the `RegisterWorkspace` server function.
 - **Client-Side**: Managed in `src/routes/auth/register.rs` using Leptos signals and granular validation.
-- **Payloads**: The `SignupPayload` in `models/src/payloads/auth.rs` ensures type safety across the network boundary.
+- **Payloads**: The `RegisterWorkspacePayload` in `models/src/payloads/auth.rs` ensures type safety across the network boundary.
 
 ## ◈ Security Measures
 

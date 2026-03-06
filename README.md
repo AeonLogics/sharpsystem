@@ -2,20 +2,21 @@
 
 The high-performance migration of **SharpSystem**—a multi-tenant financial operations platform built for speed, safety, and scale. Moving from Next.js to a purely native Rust stack with **Leptos**, **Axum**, and **SQLx**.
 
-## ◈ Project Vision
-
 SharpSystem is engineered to handle high-precision data operations with zero-cost abstractions.
-- **Financial Integrity**: Native Rust decimal handling for Bills and Receipts (no floating point errors).
-- **The "Sharp" Pipeline**: A dedicated native image processing engine for high-speed document scanning.
+- **Financial & Inventory Integrity**: Native Rust handling for stock levels and financial records (no float errors).
+- **The "Sharp" Architecture**: High-performance "Apex" architecture with multi-tenant isolation.
 - **Micro-Latency**: Sub-millisecond routing and hydration via WebAssembly and Axum.
-- **Multi-Tenant First**: Secure, organization-locked data silos using Prefixed ULIDs.
+- **Apex Isolation**: Secure, System-level data silos using UUID-v4 with strict foreign key constraints.
 
 ## ◈ System Documentation
 
 Detailed implementation patterns can be found in the `docs/` directory:
 
-- [**System Architecture**](file:///d:/RustRover/sharp-system/docs/architecture.md): Multi-crate workspace and Bento architecture patterns.
+- [**System Architecture**](file:///d:/RustRover/sharp-system/docs/architecture.md): Multi-crate workspace and Apex isolation logic.
+- [**Inventory & Database**](file:///d:/RustRover/sharp-system/docs/DATABASE.md): Schema design and Tracked vs. Untracked logic.
 - [**Authentication Flow**](file:///d:/RustRover/sharp-system/docs/auth_flow.md): Secure bootstrap and session management.
+- [**API & Server Actions**](file:///d:/RustRover/sharp-system/docs/API_PATTERNS.md): Type-safe frontend-to-backend protocols.
+- [**UI/UX Guide**](file:///d:/RustRover/sharp-system/docs/UI_UX_GUIDE.md): The "Sharp Terminal" aesthetic and animation principles.
 - [**Notification Engine**](file:///d:/RustRover/sharp-system/docs/notifications.md): Premium stackable toaster and modal documentation.
 
 ## ◈ Tech Stack
