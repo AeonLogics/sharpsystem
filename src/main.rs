@@ -9,6 +9,9 @@ async fn main() {
     use tower_sessions::{Expiry, SessionManagerLayer};
     use tower_sessions_sqlx_store::PostgresStore;
 
+    #[cfg(feature = "ssr")]
+    dotenvy::dotenv().ok();
+
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -28,9 +31,6 @@ async fn main() {
         routes.iter().map(|r| r.path()).collect::<Vec<_>>()
     );
 
-    #[cfg(feature = "ssr")]
-    dotenvy::dotenv().ok();
-
     let database_url = std::env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/sharp_system".to_string());
 
@@ -38,7 +38,7 @@ async fn main() {
         .max_connections(20)
         .min_connections(5)
         .idle_timeout(std::time::Duration::from_secs(600))
-        .acquire_timeout(std::time::Duration::from_secs(5))
+        .acquire_timeout(std::time::Duration::from_secs(15))
         .connect(&database_url)
         .await;
 

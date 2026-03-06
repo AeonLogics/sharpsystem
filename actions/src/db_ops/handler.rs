@@ -12,6 +12,7 @@ use uuid::Uuid;
 pub struct HandlerAuthData {
     pub handler_id: Uuid,
     pub password_hash: String,
+    pub user_name: String,
     pub email: String,
     pub handler_role: HandlerRole,
     pub avatar_url: Option<String>,
@@ -30,6 +31,7 @@ pub async fn get_handler_auth_data(
     struct HandlerRecord {
         handler_id: Uuid,
         password_hash: String,
+        user_name: String,
         email: String,
         handler_role: HandlerRole,
         avatar_url: Option<String>,
@@ -46,6 +48,7 @@ pub async fn get_handler_auth_data(
         SELECT 
             h.id as handler_id,
             h.password_hash,
+            h.user_name as "user_name!",
             h.email,
             h.handler_role as "handler_role!: HandlerRole",
             h.avatar_url,
@@ -68,6 +71,7 @@ pub async fn get_handler_auth_data(
     Ok(HandlerAuthData {
         handler_id: record.handler_id,
         password_hash: record.password_hash,
+        user_name: record.user_name,
         email: record.email,
         handler_role: record.handler_role,
         avatar_url: record.avatar_url,

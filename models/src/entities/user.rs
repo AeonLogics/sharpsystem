@@ -7,6 +7,8 @@ pub struct User {
     pub id: Uuid,
     pub system_id: Uuid,
     pub email: String,
+    pub user_name: String,
+    pub handler_role: HandlerRole,
     pub workspace_handle: String,
     pub system_name: String,
     pub avatar_url: Option<String>,

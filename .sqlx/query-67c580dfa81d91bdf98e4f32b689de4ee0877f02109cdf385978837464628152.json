@@ -1,0 +1,114 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO sessions \n        (handler_id, system_id, token, handler_role, user_name, email, avatar_url, bio, preferred_theme, system_handle, system_name) \n        VALUES ($1, $2, $3, $4::public.handler_role, $5, $6, $7, $8, $9, $10, $11) \n        RETURNING token as \"token!\", handler_id as \"handler_id!\", system_id as \"system_id!\", email as \"email!\", user_name as \"user_name!\", handler_role as \"handler_role!: HandlerRole\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\"",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "handler_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "system_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "email!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "handler_role!: HandlerRole",
+        "type_info": {
+          "Custom": {
+            "name": "handler_role",
+            "kind": {
+              "Enum": [
+                "system_admin",
+                "system_manager",
+                "system_salesman"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "preferred_theme",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "system_handle!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "system_name!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        {
+          "Custom": {
+            "name": "handler_role",
+            "kind": {
+              "Enum": [
+                "system_admin",
+                "system_manager",
+                "system_salesman"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "67c580dfa81d91bdf98e4f32b689de4ee0877f02109cdf385978837464628152"
+}

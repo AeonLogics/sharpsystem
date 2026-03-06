@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -13,6 +12,4 @@ pub struct Product {
     pub is_tracked: bool,
     pub added_by: Uuid,
     pub last_edited_by: Option<Uuid>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
 }

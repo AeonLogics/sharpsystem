@@ -56,6 +56,11 @@ pub async fn add_product(payload: AddProductPayload) -> Result<Product, SystemEr
                     crate::db_ops::insert_product(&mut tx, &payload, &user.system_id, &user.id)
                         .await?;
 
+                // 5. If it's an untracked (bulk) item, initialize its bucket
+                if !product.is_tracked {
+                    crate::db_ops::initialize_untracked_inventory(&mut tx, &product.id).await?;
+                }
+
                 tx.commit()
                     .await
                     .map_err(|e| SystemError::database(e.to_string()))?;

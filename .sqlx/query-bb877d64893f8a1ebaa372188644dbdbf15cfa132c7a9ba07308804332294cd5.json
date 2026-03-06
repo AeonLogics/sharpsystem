@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO products (\n            id, system_id, name, sku, category, is_tracked, added_by\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7)\n        RETURNING id, system_id, name, sku, category, is_tracked, added_by, last_edited_by as \"last_edited_by?\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "system_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "sku",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "category",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_tracked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "added_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "last_edited_by?",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Bool",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "bb877d64893f8a1ebaa372188644dbdbf15cfa132c7a9ba07308804332294cd5"
+}

@@ -18,6 +18,7 @@ pub fn RegisterPage() -> impl IntoView {
     let (system_name, set_system_name) = signal(String::new());
     let (workspace_handle, set_workspace_handle) = signal(String::new());
     let (email, set_email) = signal(String::new());
+    let (user_name, set_user_name) = signal(String::new());
     let (password, set_password) = signal(String::new());
     let (confirm_password, set_confirm_password) = signal(String::new());
     let (show_password, set_show_password) = signal(false);
@@ -100,6 +101,7 @@ pub fn RegisterPage() -> impl IntoView {
                     Ok(())
                 }
                 2 => {
+                    RegisterWorkspacePayload::validate_user_name(&user_name.get())?;
                     RegisterWorkspacePayload::validate_email(&email.get())?;
                     if let Some(Ok(available)) = email_available.get_untracked() {
                         if !available {
@@ -135,6 +137,7 @@ pub fn RegisterPage() -> impl IntoView {
                         payload: RegisterWorkspacePayload {
                             system_name: system_name.get(),
                             workspace_handle: workspace_handle.get(),
+                            user_name: user_name.get(),
                             email: email.get(),
                             password: password.get(),
                             confirm_password: confirm_password.get(),
@@ -324,6 +327,16 @@ pub fn RegisterPage() -> impl IntoView {
                                                 prop:value=email
                                                 required
                                             />
+
+                                            <label for="user_name" class="mt-4">"Identity // Full Name"</label>
+                                            <input
+                                                type="text"
+                                                id="user_name"
+                                                placeholder="e.g. Satoshi Nakamoto"
+                                                on:input=move |ev| set_user_name.set(event_target_value(&ev))
+                                                prop:value=user_name
+                                                required
+                                            />
                                             <div class="mt-1 text-[10px] font-mono uppercase tracking-tighter">
                                                 {move || {
                                                     let e = email.get();
@@ -399,6 +412,10 @@ pub fn RegisterPage() -> impl IntoView {
                                             <div class="review-item">
                                                 <span class="label">"COMMS"</span>
                                                 <span class="value">{email}</span>
+                                            </div>
+                                            <div class="review-item">
+                                                <span class="label">"USER"</span>
+                                                <span class="value">{user_name}</span>
                                             </div>
                                         </div>
                                     }.into_any(),

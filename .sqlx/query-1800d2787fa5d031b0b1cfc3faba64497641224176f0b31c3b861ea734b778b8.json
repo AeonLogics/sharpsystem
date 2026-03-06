@@ -1,0 +1,87 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT handler_id as \"handler_id!\", system_id as \"system_id!\", email as \"email!\", user_name as \"user_name!\", handler_role as \"handler_role!: HandlerRole\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" \n         FROM sessions \n         WHERE token = $1 AND expires_at > NOW()",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "handler_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "system_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "email!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "handler_role!: HandlerRole",
+        "type_info": {
+          "Custom": {
+            "name": "handler_role",
+            "kind": {
+              "Enum": [
+                "system_admin",
+                "system_manager",
+                "system_salesman"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "bio",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "preferred_theme",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "system_handle!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "system_name!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "1800d2787fa5d031b0b1cfc3faba64497641224176f0b31c3b861ea734b778b8"
+}

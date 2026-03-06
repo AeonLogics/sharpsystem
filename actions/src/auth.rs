@@ -62,6 +62,7 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
         let auth_data = crate::db_ops::handler::HandlerAuthData {
             handler_id,
             password_hash: password_hash.clone(),
+            user_name: payload.user_name.clone(),
             email: payload.email.clone(),
             handler_role: HandlerRole::SystemAdmin,
             avatar_url: Some(avatar_url.clone()),

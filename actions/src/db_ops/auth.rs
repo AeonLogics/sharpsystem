@@ -47,12 +47,13 @@ pub async fn create_handler(
 ) -> Result<Uuid, SystemError> {
     let id = sqlx::query_scalar!(
         "INSERT INTO handlers 
-        (system_id, email, password_hash, handler_role)
-         VALUES ($1, $2, $3, $4::public.handler_role) 
+        (system_id, email, password_hash, user_name, handler_role)
+         VALUES ($1, $2, $3, $4, $5::public.handler_role) 
          RETURNING id",
         system_id,
         payload.email,
         password_hash,
+        payload.user_name,
         role as _
     )
     .fetch_one(&mut *tx)
@@ -82,6 +83,8 @@ pub async fn create_session(
         handler_id: Uuid,
         system_id: Uuid,
         email: String,
+        user_name: String,
+        handler_role: HandlerRole,
         avatar_url: Option<String>,
         bio: Option<String>,
         preferred_theme: Option<String>,
@@ -92,13 +95,14 @@ pub async fn create_session(
     let record = sqlx::query_as!(
         SessionRecord,
         r#"INSERT INTO sessions 
-        (handler_id, system_id, token, handler_role, email, avatar_url, bio, preferred_theme, system_handle, system_name) 
-        VALUES ($1, $2, $3, $4::public.handler_role, $5, $6, $7, $8, $9, $10) 
-        RETURNING token as "token!", handler_id as "handler_id!", system_id as "system_id!", email as "email!", avatar_url, bio, preferred_theme, system_handle as "system_handle!", system_name as "system_name!""#,
+        (handler_id, system_id, token, handler_role, user_name, email, avatar_url, bio, preferred_theme, system_handle, system_name) 
+        VALUES ($1, $2, $3, $4::public.handler_role, $5, $6, $7, $8, $9, $10, $11) 
+        RETURNING token as "token!", handler_id as "handler_id!", system_id as "system_id!", email as "email!", user_name as "user_name!", handler_role as "handler_role!: HandlerRole", avatar_url, bio, preferred_theme, system_handle as "system_handle!", system_name as "system_name!""#,
         data.handler_id,
         data.system_id,
         token,
         data.handler_role as _,
+        data.user_name,
         data.email,
         data.avatar_url,
         data.bio,
@@ -116,6 +120,8 @@ pub async fn create_session(
             id: record.handler_id,
             system_id: record.system_id,
             email: record.email,
+            user_name: record.user_name,
+            handler_role: record.handler_role,
             workspace_handle: record.system_handle,
             system_name: record.system_name,
             avatar_url: record.avatar_url,
@@ -135,6 +141,8 @@ pub async fn get_session_user(
         handler_id: Uuid,
         system_id: Uuid,
         email: String,
+        user_name: String,
+        handler_role: HandlerRole,
         avatar_url: Option<String>,
         bio: Option<String>,
         preferred_theme: Option<String>,
@@ -144,7 +152,7 @@ pub async fn get_session_user(
 
     let record = sqlx::query_as!(
         UserRecord,
-        "SELECT handler_id as \"handler_id!\", system_id as \"system_id!\", email as \"email!\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" 
+        "SELECT handler_id as \"handler_id!\", system_id as \"system_id!\", email as \"email!\", user_name as \"user_name!\", handler_role as \"handler_role!: HandlerRole\", avatar_url, bio, preferred_theme, system_handle as \"system_handle!\", system_name as \"system_name!\" 
          FROM sessions 
          WHERE token = $1 AND expires_at > NOW()",
         token
@@ -158,6 +166,8 @@ pub async fn get_session_user(
             id: r.handler_id,
             system_id: r.system_id,
             email: r.email,
+            user_name: r.user_name,
+            handler_role: r.handler_role,
             workspace_handle: r.system_handle,
             system_name: r.system_name,
             avatar_url: r.avatar_url,

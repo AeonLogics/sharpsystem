@@ -45,6 +45,7 @@ impl AuthenticateUserPayload {
 pub struct RegisterWorkspacePayload {
     pub system_name: String,
     pub workspace_handle: String,
+    pub user_name: String,
     pub email: String,
     pub password: String,
     pub confirm_password: String,
@@ -55,6 +56,7 @@ impl std::fmt::Debug for RegisterWorkspacePayload {
         f.debug_struct("RegisterWorkspacePayload")
             .field("system_name", &self.system_name)
             .field("workspace_handle", &self.workspace_handle)
+            .field("user_name", &self.user_name)
             .field("email", &self.email)
             .field("password", &"***")
             .field("confirm_password", &"***")
@@ -66,6 +68,7 @@ impl RegisterWorkspacePayload {
     pub fn validate(&self) -> Result<(), crate::auth::AuthError> {
         Self::validate_system_name(&self.system_name)?;
         Self::validate_workspace_handle(&self.workspace_handle)?;
+        Self::validate_user_name(&self.user_name)?;
         Self::validate_email(&self.email)?;
         Self::validate_password(&self.password)?;
         Self::validate_confirm_password(&self.password, &self.confirm_password)?;
@@ -76,6 +79,15 @@ impl RegisterWorkspacePayload {
         if name.trim().is_empty() {
             return Err(crate::auth::AuthError::InvalidInput(
                 "System name is required.".to_string(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn validate_user_name(name: &str) -> Result<(), crate::auth::AuthError> {
+        if name.trim().is_empty() {
+            return Err(crate::auth::AuthError::InvalidInput(
+                "User name is required.".to_string(),
             ));
         }
         Ok(())
