@@ -38,24 +38,23 @@ pub fn Loading(
 
     view! {
         <div class=overlay_class on:mousedown=on_click>
-            {move || if full_screen {
-                view! {
-                    <div class="ripple-container">
-                        <For
-                            each=move || ripples.get()
-                            key=|(_, _, id)| *id
-                            let:ripple
-                        >
-                            {
-                                let (x, y, _) = ripple;
-                                let style = format!("left: {}px; top: {}px;", x, y);
-                                view! { <div class="ripple-pulse" style=style></div> }
-                            }
-                        </For>
-                    </div>
-                }.into_any()
-            } else {
-                ().into_any()
+            {move || {
+                if full_screen {
+                    view! {
+                        <div class="ripple-container">
+                            <For each=move || ripples.get() key=|(_, _, id)| *id let:ripple>
+                                {
+                                    let (x, y, _) = ripple;
+                                    let style = format!("left: {}px; top: {}px;", x, y);
+                                    view! { <div class="ripple-pulse" style=style></div> }
+                                }
+                            </For>
+                        </div>
+                    }
+                        .into_any()
+                } else {
+                    ().into_any()
+                }
             }}
 
             <div class="chronos-weaver bolder">
@@ -71,10 +70,19 @@ pub fn Loading(
 
                     // The "Sand" Flow
                     <g class="sand-particles">
-                        {(0..10).map(|i| {
-                            let delay = format!("-{}s", i as f32 * 0.25);
-                            view! { <circle cx="50" cy="20" r="2.5" style=format!("animation-delay: {}", delay) /> }
-                        }).collect_view()}
+                        {(0..10)
+                            .map(|i| {
+                                let delay = format!("-{}s", i as f32 * 0.25);
+                                view! {
+                                    <circle
+                                        cx="50"
+                                        cy="20"
+                                        r="2.5"
+                                        style=format!("animation-delay: {}", delay)
+                                    />
+                                }
+                            })
+                            .collect_view()}
                     </g>
                 </svg>
             </div>
@@ -96,9 +104,14 @@ pub fn InlineLoader(
                 <span class="bar bar-4"></span>
                 <span class="bar bar-5"></span>
             </div>
-            {loading_text.map(|text| view! {
-                <span class="loading-text text-sm font-mono text-muted animate-pulse">{text}</span>
-            })}
+            {loading_text
+                .map(|text| {
+                    view! {
+                        <span class="loading-text text-sm font-mono text-muted animate-pulse">
+                            {text}
+                        </span>
+                    }
+                })}
         </div>
     }
 }

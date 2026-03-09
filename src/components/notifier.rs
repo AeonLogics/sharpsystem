@@ -14,8 +14,6 @@ pub fn Notifier() -> impl IntoView {
                 children=move |toast| {
                     let id = toast.id();
                     let level_class = format!("{:?}", toast.level()).to_lowercase();
-
-                    // Auto-clear logic for each individual toast
                     Effect::new(move |_| {
                         let id_clone = id.clone();
                         set_timeout(
@@ -26,8 +24,10 @@ pub fn Notifier() -> impl IntoView {
                         );
                     });
 
+                    // Auto-clear logic for each individual toast
+
                     view! {
-                        <div class={format!("notification-toast {}", level_class)}>
+                        <div class=format!("notification-toast {}", level_class)>
                             <div class="notification-icon"></div>
                             <div class="notification-content">
                                 <span class="notification-title">{toast.title()}</span>

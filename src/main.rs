@@ -6,8 +6,6 @@ async fn main() {
     use leptos::prelude::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use sharp_system::app::*;
-    use tower_sessions::{Expiry, SessionManagerLayer};
-    use tower_sessions_sqlx_store::PostgresStore;
 
     #[cfg(feature = "ssr")]
     dotenvy::dotenv().ok();
@@ -16,7 +14,7 @@ async fn main() {
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
                 tracing_subscriber::EnvFilter::new(
-                    "info,sqlx=warn,hyper=warn,tower=warn,axum=warn,tower_sessions=error,tower_sessions_core=error,sharp_system=info,actions=info,models=info",
+                    "info,sqlx=warn,hyper=warn,tower=warn,axum=warn,sharp_system=info,actions=info,models=info",
                 )
             }),
         )
@@ -32,7 +30,7 @@ async fn main() {
     );
 
     let database_url = std::env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/sharp_system".to_string());
+        .unwrap_or_else(|_| "postgres://postgres:postgres@127.0.0.1:5432/sharp_system".to_string());
 
     let pool_result = sqlx::postgres::PgPoolOptions::new()
         .max_connections(20)
@@ -51,16 +49,6 @@ async fn main() {
     };
 
     if let Some(pool) = pool.clone() {
-        let session_store = PostgresStore::new(pool.clone())
-            .with_table_name("tower_sessions")
-            .expect("Invalid table name");
-        session_store.migrate().await.expect("Migration failed");
-
-        let session_layer = SessionManagerLayer::new(session_store)
-            .with_secure(false)
-            .with_http_only(true)
-            .with_expiry(Expiry::OnInactivity(time::Duration::days(7)));
-
         use axum::http::header::CACHE_CONTROL;
         use tower_http::{compression::CompressionLayer, set_header::SetResponseHeaderLayer};
 
@@ -97,7 +85,6 @@ async fn main() {
                 shell,
             ))
             .layer(CompressionLayer::new())
-            .layer(session_layer)
             .with_state(leptos_options);
 
         log!("listening on http://{}", &addr);

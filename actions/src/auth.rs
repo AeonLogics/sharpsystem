@@ -9,8 +9,6 @@ use crate::db_ops::{create_handler, create_system, get_handler_auth_data};
 use models::HandlerRole;
 #[cfg(feature = "ssr")]
 use sqlx::PgPool;
-#[cfg(feature = "ssr")]
-use tower_sessions::Session;
 
 use leptos::prelude::*;
 use models::entities::User;
@@ -23,15 +21,20 @@ use tracing::instrument;
 pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<User, SystemError> {
     #[cfg(feature = "ssr")]
     {
+        use crate::helper::set_session_token;
+        use validator::Validate;
+
+        // Validate payload
         payload
             .validate()
             .map_err(|e| SystemError::validation(e.to_string()))?;
 
+        // get Postgres pool from context
         let pool = use_context::<PgPool>().ok_or_else(|| {
             SystemError::database("Database connection pool not found in context.")
         })?;
 
-        let password_hash = hash_password(&payload.password).await;
+        let password_hash = hash_password(payload.password.clone()).await?;
         let owner_id = uuid::Uuid::new_v4();
 
         let mut tx = pool
@@ -50,12 +53,8 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
         )
         .await?;
 
-        let session: Session = leptos_axum::extract()
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
-
         let avatar_url = format!(
-            "https://api.dicebear.com/7.x/initials/svg?seed={}",
+            "https://api.dicebear.com/7.x/initials/svg?seed={}&backgroundColor=8b5cf6,06b6d4&backgroundType=gradientLinear&fontFamily=monospace&fontSize=40",
             payload.system_name
         );
 
@@ -80,10 +79,7 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
             .await
             .map_err(|e| SystemError::database(e.to_string()))?;
 
-        session
-            .insert("session_token", bundle.token)
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
+        set_session_token(&bundle.token)?;
 
         Ok(bundle.user)
     }
@@ -99,6 +95,9 @@ pub async fn register_workspace(payload: RegisterWorkspacePayload) -> Result<Use
 pub async fn authenticate_user(payload: AuthenticateUserPayload) -> Result<User, SystemError> {
     #[cfg(feature = "ssr")]
     {
+        use crate::helper::set_session_token;
+        use validator::Validate;
+
         payload
             .validate()
             .map_err(|e| SystemError::validation(e.to_string()))?;
@@ -114,25 +113,18 @@ pub async fn authenticate_user(payload: AuthenticateUserPayload) -> Result<User,
 
         let data = get_handler_auth_data(&mut tx, &payload.email).await?;
 
-        if !verify_password(&payload.password, &data.password_hash)? {
+        if !verify_password(payload.password.clone(), data.password_hash.clone()).await? {
             return Err(SystemError::unauthorized("Invalid credentials"));
         }
 
-        let session: Session = leptos_axum::extract()
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
-
         let token = uuid::Uuid::new_v4().to_string();
-        let bundle = create_session(&mut tx, &data, &token).await?;
+        let bundle = crate::db_ops::auth::create_session(&mut tx, &data, &token).await?;
 
         tx.commit()
             .await
             .map_err(|e| SystemError::database(e.to_string()))?;
 
-        session
-            .insert("session_token", bundle.token)
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
+        set_session_token(&bundle.token)?;
 
         Ok(bundle.user)
     }
@@ -157,14 +149,7 @@ pub async fn validate_session() -> Result<Option<User>, SystemError> {
             SystemError::database("Database connection pool not found in context.")
         })?;
 
-        let session: Session = leptos_axum::extract()
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
-
-        let token: Option<String> = session
-            .get("session_token")
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
+        let token = crate::helper::get_session_token().await;
 
         tracing::debug!(
             token_resolved = token.is_some(),
@@ -207,14 +192,7 @@ pub async fn logout() -> Result<(), SystemError> {
             SystemError::database("Database connection pool not found in context.")
         })?;
 
-        let session: Session = leptos_axum::extract()
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
-
-        let token: Option<String> = session
-            .get("session_token")
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
+        let token = crate::helper::get_session_token().await;
 
         if let Some(t) = token {
             let mut conn = pool
@@ -225,10 +203,7 @@ pub async fn logout() -> Result<(), SystemError> {
             delete_session(&mut conn, &t).await?;
         }
 
-        session
-            .delete()
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
+        crate::helper::remove_session_token()?;
 
         Ok(())
     }

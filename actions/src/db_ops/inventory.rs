@@ -77,3 +77,27 @@ pub async fn initialize_untracked_inventory(
 
     Ok(())
 }
+#[cfg(feature = "ssr")]
+pub async fn get_products_for_system(
+    conn: &mut sqlx::PgConnection,
+    system_id: &Uuid,
+) -> Result<Vec<Product>, SystemError> {
+    let products = sqlx::query_as!(
+        Product,
+        r#"
+        SELECT id, system_id, name, sku, category, is_tracked, added_by, last_edited_by as "last_edited_by?"
+        FROM products
+        WHERE system_id = $1
+        ORDER BY name ASC
+        "#,
+        system_id
+    )
+    .fetch_all(conn)
+    .await
+    .map_err(|e| {
+        tracing::error!("Failed to fetch products: {}", e);
+        SystemError::database(e.to_string())
+    })?;
+
+    Ok(products)
+}

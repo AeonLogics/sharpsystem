@@ -12,14 +12,14 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
         <!DOCTYPE html>
         <html lang="en" data-theme="dark">
             <head>
-                <meta charset="utf-8"/>
-                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <AutoReload options=options.clone() />
-                <HydrationScripts options/>
-                <MetaTags/>
+                <HydrationScripts options />
+                <MetaTags />
             </head>
             <body>
-                <App/>
+                <App />
             </body>
         </html>
     }
@@ -46,27 +46,42 @@ pub fn App() -> impl IntoView {
     });
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/sharp-system.css"/>
-        <Title text="Sharp System"/>
+        <Stylesheet id="leptos" href="/pkg/sharp-system.css" />
+        <Title text="Sharp System" />
 
         <Router>
-            <Suspense fallback=|| view! { <div class="p-10 text-center font-mono opacity-50">"INITIALIZING SYSTEM..."</div> }>
+            <Suspense fallback=|| {
+                view! {
+                    <div class="p-10 text-center font-mono opacity-50">
+                        "INITIALIZING SYSTEM..."
+                    </div>
+                }
+            }>
                 <div class="app-layout">
                     <Notifier />
                     <AlertModal />
                     <Header />
                     <main>
                         <Routes fallback=|| view! { <NotFoundPage /> }>
-                            <Route path=StaticSegment("") view=HomePage/>
+                            <Route path=StaticSegment("") view=HomePage />
                             <ParentRoute path=StaticSegment("auth") view=AuthLayout>
-                                <Route path=StaticSegment("login") view=LoginPage/>
-                                <Route path=StaticSegment("register") view=RegisterPage/>
+                                <Route path=StaticSegment("login") view=LoginPage />
+                                <Route path=StaticSegment("register") view=RegisterPage />
                             </ParentRoute>
-                            <ParentRoute path=StaticSegment("system") view=|| view! { <Guard><LayoutPage /></Guard> }>
-                                <Route path=StaticSegment("dashboard") view=DashboardPage/>
-                                <Route path=StaticSegment("catalog") view=CatalogPage/>
-                                <Route path=StaticSegment("inventory") view=InventoryPage/>
-                                <Route path=StaticSegment("pos") view=PosPage/>
+                            <ParentRoute
+                                path=StaticSegment("system")
+                                view=|| {
+                                    view! {
+                                        <Guard>
+                                            <LayoutPage />
+                                        </Guard>
+                                    }
+                                }
+                            >
+                                <Route path=StaticSegment("dashboard") view=DashboardPage />
+                                <Route path=StaticSegment("catalog") view=CatalogPage />
+                                <Route path=StaticSegment("inventory") view=InventoryPage />
+                                <Route path=StaticSegment("pos") view=PosPage />
                             </ParentRoute>
                         </Routes>
                     </main>

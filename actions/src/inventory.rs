@@ -3,20 +3,18 @@ use models::entities::Product;
 use models::errors::SystemError;
 use models::payloads::AddProductPayload;
 use tracing::instrument;
-#[cfg(feature = "ssr")]
-use validator::Validate;
 
 #[cfg(feature = "ssr")]
 use sqlx::PgPool;
 #[cfg(feature = "ssr")]
-use tower_sessions::Session;
+use validator::Validate;
 
 #[instrument(ret, err, skip_all, fields(name = %payload.name))]
 #[server(AddProduct)]
 pub async fn add_product(payload: AddProductPayload) -> Result<Product, SystemError> {
     #[cfg(feature = "ssr")]
     {
-        // 1. Validate the payload (e.g., name is not empty)
+        // 1. Validate the payload
         payload
             .validate()
             .map_err(|e| SystemError::validation(e.to_string()))?;
@@ -27,14 +25,8 @@ pub async fn add_product(payload: AddProductPayload) -> Result<Product, SystemEr
         })?;
 
         // 3. Get the active user's session
-        let session: Session = leptos_axum::extract()
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
-
-        let token: Option<String> = session
-            .get("session_token")
-            .await
-            .map_err(|e| SystemError::general(e.to_string()))?;
+        use crate::helper::get_session_token;
+        let token = get_session_token().await;
 
         if let Some(t) = token {
             let mut conn = pool
@@ -43,7 +35,7 @@ pub async fn add_product(payload: AddProductPayload) -> Result<Product, SystemEr
                 .map_err(|e| SystemError::database(e.to_string()))?;
 
             // Look up who is making this request
-            let user = crate::db_ops::auth::get_session_user(&mut conn, &t).await?;
+            let user = crate::db_ops::get_session_user(&mut conn, &t).await?;
 
             if let Some(user) = user {
                 let mut tx = pool
@@ -76,6 +68,46 @@ pub async fn add_product(payload: AddProductPayload) -> Result<Product, SystemEr
     #[cfg(not(feature = "ssr"))]
     {
         let _ = payload;
+        unreachable!()
+    }
+}
+
+#[server(GetProducts)]
+pub async fn get_products() -> Result<Vec<Product>, SystemError> {
+    #[cfg(feature = "ssr")]
+    {
+        // 1. Get the database pool
+        let pool = use_context::<PgPool>().ok_or_else(|| {
+            SystemError::database("Database connection pool not found in context.")
+        })?;
+
+        // 2. Get the session token
+        use crate::helper::get_session_token;
+        let token = get_session_token().await;
+
+        if let Some(t) = token {
+            let mut conn = pool
+                .acquire()
+                .await
+                .map_err(|e| SystemError::database(e.to_string()))?;
+
+            // 3. Get the user
+            let user = crate::db_ops::get_session_user(&mut conn, &t).await?;
+
+            if let Some(user) = user {
+                // 4. Fetch the products!
+                let products =
+                    crate::db_ops::get_products_for_system(&mut conn, &user.system_id).await?;
+                return Ok(products);
+            }
+        }
+
+        Err(SystemError::unauthorized(
+            "You must be logged in to view the catalog.",
+        ))
+    }
+    #[cfg(not(feature = "ssr"))]
+    {
         unreachable!()
     }
 }

@@ -110,8 +110,7 @@ pub fn LoginPage() -> impl IntoView {
 
                     <footer class="auth-footer scale-in">
                         <p>
-                            "New to the system? "
-                            <A href="/auth/register">"Initialize Account"</A>
+                            "New to the system? " <A href="/auth/register">"Initialize Account"</A>
                         </p>
                         <A href="/" attr:class="back-to-home">
                             "← Back to Terminal"

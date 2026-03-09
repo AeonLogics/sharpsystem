@@ -16,7 +16,8 @@ rand_core = { version = "0.6", features = ["std", "getrandom"] }
 uuid = { version = "1.20.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 leptos_axum = { version = "0.8", optional = true }
-tower-sessions = { version = "0.14", optional = true }
+axum-extra = { version = "0.10.3", features = ["cookie"], optional = true }
+axum = { version = "0.8", optional = true }
 validator = { version = "0.20.0", features = ["derive"] }
 
 [features]
@@ -27,6 +28,7 @@ ssr = [
     "dep:argon2",
     "dep:password-hash",
     "dep:leptos_axum",
-    "dep:tower-sessions",
+    "dep:axum-extra",
+    "dep:axum",
     "models/ssr",
 ]

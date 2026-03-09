@@ -14,7 +14,5 @@ pub fn AuthLayout() -> impl IntoView {
             navigate("/system/dashboard", Default::default());
         }
     });
-    view! {
-        <Outlet />
-    }
+    view! { <Outlet /> }
 }

@@ -190,8 +190,14 @@ pub async fn delete_session(tx: &mut PgConnection, token: &str) -> Result<(), Sy
 
 #[cfg(feature = "ssr")]
 pub async fn refresh_session_expiry(tx: &mut PgConnection, token: &str) -> Result<(), SystemError> {
+    // ◈ Optimization: Conditional Refresh (The "Lazier Refresh" pattern)
+    // We only update the expires_at timestamp if it has been at least 24 hours since the last refresh.
+    // This prevents row-locking contention during rapid-fire requests while keeping sessions alive.
     sqlx::query!(
-        "UPDATE sessions SET expires_at = NOW() + INTERVAL '7 days' WHERE token = $1",
+        "UPDATE sessions 
+         SET expires_at = NOW() + INTERVAL '7 days' 
+         WHERE token = $1 
+         AND expires_at < NOW() + INTERVAL '6 days'",
         token
     )
     .execute(&mut *tx)
@@ -216,24 +222,37 @@ pub async fn refresh_session_expiry(tx: &mut PgConnection, token: &str) -> Resul
 // }
 
 #[cfg(feature = "ssr")]
-pub fn verify_password(password_candidate: &str, password_hash: &str) -> Result<bool, SystemError> {
+pub async fn verify_password(
+    password_candidate: String,
+    password_hash: String,
+) -> Result<bool, SystemError> {
     use argon2::{Argon2, PasswordHash, PasswordVerifier};
 
-    let parsed_hash = PasswordHash::new(password_hash)
-        .map_err(|e| SystemError::general(format!("Invalid hash format: {}", e)))?;
+    tokio::task::spawn_blocking(move || {
+        let parsed_hash = PasswordHash::new(&password_hash)
+            .map_err(|e| SystemError::general(format!("Invalid hash format: {}", e)))?;
 
-    let is_valid = Argon2::default()
-        .verify_password(password_candidate.as_bytes(), &parsed_hash)
-        .is_ok();
+        let is_valid = Argon2::default()
+            .verify_password(password_candidate.as_bytes(), &parsed_hash)
+            .is_ok();
 
-    Ok(is_valid)
+        Ok(is_valid)
+    })
+    .await
+    .map_err(|e| SystemError::general(format!("Task join error: {}", e)))?
 }
 
 #[cfg(feature = "ssr")]
-pub async fn hash_password(raw_pass: &str) -> String {
-    let engine = Argon2::default();
-    let salt = SaltString::generate(&mut OsRng);
-    let hash = engine.hash_password(raw_pass.as_bytes(), &salt).unwrap();
+pub async fn hash_password(raw_pass: String) -> Result<String, SystemError> {
+    tokio::task::spawn_blocking(move || {
+        let engine = Argon2::default();
+        let salt = SaltString::generate(&mut OsRng);
+        let hash = engine
+            .hash_password(raw_pass.as_bytes(), &salt)
+            .map_err(|e| SystemError::general(format!("Hashing error: {}", e)))?;
 
-    hash.to_string()
+        Ok(hash.to_string())
+    })
+    .await
+    .map_err(|e| SystemError::general(format!("Task join error: {}", e)))?
 }

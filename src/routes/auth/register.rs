@@ -234,208 +234,302 @@ pub fn RegisterPage() -> impl IntoView {
                         <form method="post" on:submit=move |ev| ev.prevent_default()>
                             <div class="wizard-step-container">
                                 {move || match step.get() {
-                                    0 => view! {
-                                        <div class="welcome-step slide-in text-center py-6">
-                                            <div class="welcome-icon mb-6 scale-in">
-                                                <div class="pulsing-shield">
-                                                    <span class="icon">"◈"</span>
+                                    0 => {
+                                        view! {
+                                            <div class="welcome-step slide-in text-center py-6">
+                                                <div class="welcome-icon mb-6 scale-in">
+                                                    <div class="pulsing-shield">
+                                                        <span class="icon">"◈"</span>
+                                                    </div>
+                                                </div>
+                                                <h2 class="text-xl font-bold mb-4">
+                                                    "Ready to Initialize?"
+                                                </h2>
+                                                <p class="text-muted mb-8 italic">
+                                                    "You are about to establish a new node in the Sharp System network. Ensure your credentials are ready for encryption."
+                                                </p>
+                                                <div class="system-stats flex justify-center gap-8 text-xs font-mono opacity-60">
+                                                    <div class="stat">"STATE: STANDBY"</div>
+                                                    <div class="stat">"LATENCY: 0.4ms"</div>
+                                                    <div class="stat">"NODE: PHOENIX"</div>
                                                 </div>
                                             </div>
-                                            <h2 class="text-xl font-bold mb-4">"Ready to Initialize?"</h2>
-                                            <p class="text-muted mb-8 italic">
-                                                "You are about to establish a new node in the Sharp System network. Ensure your credentials are ready for encryption."
-                                            </p>
-                                            <div class="system-stats flex justify-center gap-8 text-xs font-mono opacity-60">
-                                                <div class="stat">"STATE: STANDBY"</div>
-                                                <div class="stat">"LATENCY: 0.4ms"</div>
-                                                <div class="stat">"NODE: PHOENIX"</div>
-                                            </div>
-                                        </div>
-                                    }.into_any(),
-                                    1 => view! {
-                                        <div class="form-group slide-in">
-                                            <label for="system_name">"Organization // Display Name"</label>
-                                            <input
-                                                type="text"
-                                                id="system_name"
-                                                placeholder="e.g. Sharp System Inc."
-                                                on:input=move |ev| set_system_name.set(event_target_value(&ev))
-                                                prop:value=system_name
-                                                required
-                                            />
-
-                                            <label for="workspace_handle" class="mt-4">"Subdomain // Workspace Handle"</label>
-                                            <div class="handle-input-wrapper flex items-center gap-2">
+                                        }
+                                            .into_any()
+                                    }
+                                    1 => {
+                                        view! {
+                                            <div class="form-group slide-in">
+                                                <label for="system_name">
+                                                    "Organization // Display Name"
+                                                </label>
                                                 <input
                                                     type="text"
-                                                    id="workspace_handle"
-                                                    placeholder="Automated..."
-                                                    readonly
-                                                    prop:value=workspace_handle
-                                                    class=move || {
-                                                        let base = "bg-slate-900/10 cursor-not-allowed opacity-70 ";
-                                                        let status = match handle_available.get() {
-                                                            Some(Ok(true)) => "border-green-500/50",
-                                                            Some(Ok(false)) => "border-red-500/50",
-                                                            _ => ""
-                                                        };
-                                                        format!("{}{}", base, status)
+                                                    id="system_name"
+                                                    placeholder="e.g. Sharp System Inc."
+                                                    on:input=move |ev| {
+                                                        set_system_name.set(event_target_value(&ev))
                                                     }
+                                                    prop:value=system_name
+                                                    required
                                                 />
-                                                <span class="text-xs font-mono opacity-50">".sharpsystem.com"</span>
-                                            </div>
-                                            <div class="mt-1 text-[10px] font-mono uppercase tracking-tighter">
-                                                {move || {
-                                                    let handle = workspace_handle.get();
-                                                    if handle.len() < 3 {
-                                                         view! { <span class="opacity-30">"Minimum 3 characters"</span> }.into_any()
-                                                    } else {
-                                                        match RegisterWorkspacePayload::validate_workspace_handle(&handle) {
-                                                            Err(models::auth::AuthError::InvalidInput(e)) if e.contains("reserved") => {
-                                                                view! { <span class="text-red-500">"✗ Reserved Handle"</span> }.into_any()
-                                                            },
-                                                            _ => match handle_available.get() {
-                                                                Some(Ok(true)) => view! {
-                                                                    <span class="text-green-400 flex items-center gap-1">
-                                                                        <i class="fa-solid fa-circle-check"></i>
-                                                                        "Available"
-                                                                    </span>
-                                                                }.into_any(),
-                                                                Some(Ok(false)) => view! {
-                                                                    <span class="text-red-400 flex items-center gap-1">
-                                                                        <i class="fa-solid fa-circle-xmark"></i>
-                                                                        "Taken"
-                                                                    </span>
-                                                                }.into_any(),
-                                                                Some(Err(_)) => view! { <span class="text-yellow-500">"Error checking availability"</span> }.into_any(),
-                                                                None => view! { <span class="animate-pulse">"Checking..."</span> }.into_any(),
+
+                                                <label for="workspace_handle" class="mt-4">
+                                                    "Subdomain // Workspace Handle"
+                                                </label>
+                                                <div class="handle-input-wrapper flex items-center gap-2">
+                                                    <input
+                                                        type="text"
+                                                        id="workspace_handle"
+                                                        placeholder="Automated..."
+                                                        readonly
+                                                        prop:value=workspace_handle
+                                                        class=move || {
+                                                            let base = "bg-slate-900/10 cursor-not-allowed opacity-70 ";
+                                                            let status = match handle_available.get() {
+                                                                Some(Ok(true)) => "border-green-500/50",
+                                                                Some(Ok(false)) => "border-red-500/50",
+                                                                _ => "",
+                                                            };
+                                                            format!("{}{}", base, status)
+                                                        }
+                                                    />
+                                                    <span class="text-xs font-mono opacity-50">
+                                                        ".sharpsystem.com"
+                                                    </span>
+                                                </div>
+                                                <div class="mt-1 text-[10px] font-mono uppercase tracking-tighter">
+                                                    {move || {
+                                                        let handle = workspace_handle.get();
+                                                        if handle.len() < 3 {
+                                                            view! {
+                                                                <span class="opacity-30">"Minimum 3 characters"</span>
+                                                            }
+                                                                .into_any()
+                                                        } else {
+                                                            match RegisterWorkspacePayload::validate_workspace_handle(
+                                                                &handle,
+                                                            ) {
+                                                                Err(
+                                                                    models::auth::AuthError::InvalidInput(e),
+                                                                ) if e.contains("reserved") => {
+                                                                    view! {
+                                                                        <span class="text-red-500">"✗ Reserved Handle"</span>
+                                                                    }
+                                                                        .into_any()
+                                                                }
+                                                                _ => {
+                                                                    match handle_available.get() {
+                                                                        Some(Ok(true)) => {
+                                                                            view! {
+                                                                                <span class="text-green-400 flex items-center gap-1">
+                                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                                    "Available"
+                                                                                </span>
+                                                                            }
+                                                                                .into_any()
+                                                                        }
+                                                                        Some(Ok(false)) => {
+                                                                            view! {
+                                                                                <span class="text-red-400 flex items-center gap-1">
+                                                                                    <i class="fa-solid fa-circle-xmark"></i>
+                                                                                    "Taken"
+                                                                                </span>
+                                                                            }
+                                                                                .into_any()
+                                                                        }
+                                                                        Some(Err(_)) => {
+                                                                            view! {
+                                                                                <span class="text-yellow-500">
+                                                                                    "Error checking availability"
+                                                                                </span>
+                                                                            }
+                                                                                .into_any()
+                                                                        }
+                                                                        None => {
+                                                                            view! { <span class="animate-pulse">"Checking..."</span> }
+                                                                                .into_any()
+                                                                        }
+                                                                    }
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                }}
+                                                    }}
+                                                </div>
                                             </div>
-                                        </div>
-                                    }.into_any(),
-                                    2 => view! {
-                                        <div class="form-group slide-in">
-                                            <label for="email">"Protocol // Email Address"</label>
-                                            <input
-                                                type="email"
-                                                id="email"
-                                                placeholder="you@example.com"
-                                                on:input=move |ev| set_email.set(event_target_value(&ev))
-                                                prop:value=email
-                                                required
-                                            />
+                                        }
+                                            .into_any()
+                                    }
+                                    2 => {
+                                        view! {
+                                            <div class="form-group slide-in">
+                                                <label for="email">"Protocol // Email Address"</label>
+                                                <input
+                                                    type="email"
+                                                    id="email"
+                                                    placeholder="you@example.com"
+                                                    on:input=move |ev| set_email.set(event_target_value(&ev))
+                                                    prop:value=email
+                                                    required
+                                                />
 
-                                            <label for="user_name" class="mt-4">"Identity // Full Name"</label>
-                                            <input
-                                                type="text"
-                                                id="user_name"
-                                                placeholder="e.g. Satoshi Nakamoto"
-                                                on:input=move |ev| set_user_name.set(event_target_value(&ev))
-                                                prop:value=user_name
-                                                required
-                                            />
-                                            <div class="mt-1 text-[10px] font-mono uppercase tracking-tighter">
-                                                {move || {
-                                                    let e = email.get();
-                                                    if e.is_empty() || !e.contains('@') {
-                                                         view! { <span class="opacity-30">"Valid email required"</span> }.into_any()
-                                                    } else {
-                                                        match email_available.get() {
-                                                            Some(Ok(true)) => view! {
-                                                                <span class="text-green-400 flex items-center gap-1">
-                                                                    <i class="fa-solid fa-circle-check"></i>
-                                                                    "Available"
-                                                                </span>
-                                                            }.into_any(),
-                                                            Some(Ok(false)) => view! {
-                                                                <span class="text-red-400 flex items-center gap-1">
-                                                                    <i class="fa-solid fa-circle-xmark"></i>
-                                                                    "Registered"
-                                                                </span>
-                                                            }.into_any(),
-                                                            Some(Err(_)) => view! { <span class="text-yellow-500">"Error checking availability"</span> }.into_any(),
-                                                            None => view! { <span class="animate-pulse">"Checking..."</span> }.into_any(),
+                                                <label for="user_name" class="mt-4">
+                                                    "Identity // Full Name"
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    id="user_name"
+                                                    placeholder="e.g. Satoshi Nakamoto"
+                                                    on:input=move |ev| {
+                                                        set_user_name.set(event_target_value(&ev))
+                                                    }
+                                                    prop:value=user_name
+                                                    required
+                                                />
+                                                <div class="mt-1 text-[10px] font-mono uppercase tracking-tighter">
+                                                    {move || {
+                                                        let e = email.get();
+                                                        if e.is_empty() || !e.contains('@') {
+                                                            view! {
+                                                                <span class="opacity-30">"Valid email required"</span>
+                                                            }
+                                                                .into_any()
+                                                        } else {
+                                                            match email_available.get() {
+                                                                Some(Ok(true)) => {
+                                                                    view! {
+                                                                        <span class="text-green-400 flex items-center gap-1">
+                                                                            <i class="fa-solid fa-circle-check"></i>
+                                                                            "Available"
+                                                                        </span>
+                                                                    }
+                                                                        .into_any()
+                                                                }
+                                                                Some(Ok(false)) => {
+                                                                    view! {
+                                                                        <span class="text-red-400 flex items-center gap-1">
+                                                                            <i class="fa-solid fa-circle-xmark"></i>
+                                                                            "Registered"
+                                                                        </span>
+                                                                    }
+                                                                        .into_any()
+                                                                }
+                                                                Some(Err(_)) => {
+                                                                    view! {
+                                                                        <span class="text-yellow-500">
+                                                                            "Error checking availability"
+                                                                        </span>
+                                                                    }
+                                                                        .into_any()
+                                                                }
+                                                                None => {
+                                                                    view! { <span class="animate-pulse">"Checking..."</span> }
+                                                                        .into_any()
+                                                                }
+                                                            }
                                                         }
-                                                    }
-                                                }}
+                                                    }}
+                                                </div>
                                             </div>
-                                        </div>
-                                    }.into_any(),
-                                    3 => view! {
-                                        <div class="form-group slide-in">
-                                            <label for="password">"Security // Private Key"</label>
-                                            <div class="password-input-wrapper">
-                                                <input
-                                                    type=move || if show_password.get() { "text" } else { "password" }
-                                                    id="password"
-                                                    placeholder="••••••••"
-                                                    on:input=move |ev| set_password.set(event_target_value(&ev))
-                                                    prop:value=password
-                                                    required
-                                                />
-                                                <button
-                                                    type="button"
-                                                    class="password-toggle"
-                                                    on:click=move |_| set_show_password.update(|v| *v = !*v)
-                                                    title="Toggle Visibility"
-                                                >
-                                                    {move || if show_password.get() { "" } else { "" }}
-                                                </button>
-                                            </div>
+                                        }
+                                            .into_any()
+                                    }
+                                    3 => {
+                                        view! {
+                                            <div class="form-group slide-in">
+                                                <label for="password">"Security // Private Key"</label>
+                                                <div class="password-input-wrapper">
+                                                    <input
+                                                        type=move || {
+                                                            if show_password.get() { "text" } else { "password" }
+                                                        }
+                                                        id="password"
+                                                        placeholder="••••••••"
+                                                        on:input=move |ev| set_password.set(event_target_value(&ev))
+                                                        prop:value=password
+                                                        required
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        class="password-toggle"
+                                                        on:click=move |_| set_show_password.update(|v| *v = !*v)
+                                                        title="Toggle Visibility"
+                                                    >
+                                                        {move || if show_password.get() { "" } else { "" }}
+                                                    </button>
+                                                </div>
 
-                                            <label for="confirm_password" class="mt-4">"Verification // Confirm Key"</label>
-                                            <div class="password-input-wrapper">
-                                                <input
-                                                    type=move || if show_password.get() { "text" } else { "password" }
-                                                    id="confirm_password"
-                                                    placeholder="••••••••"
-                                                    on:input=move |ev| set_confirm_password.set(event_target_value(&ev))
-                                                    prop:value=confirm_password
-                                                    required
-                                                />
+                                                <label for="confirm_password" class="mt-4">
+                                                    "Verification // Confirm Key"
+                                                </label>
+                                                <div class="password-input-wrapper">
+                                                    <input
+                                                        type=move || {
+                                                            if show_password.get() { "text" } else { "password" }
+                                                        }
+                                                        id="confirm_password"
+                                                        placeholder="••••••••"
+                                                        on:input=move |ev| {
+                                                            set_confirm_password.set(event_target_value(&ev))
+                                                        }
+                                                        prop:value=confirm_password
+                                                        required
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    }.into_any(),
-                                    _ => view! {
-                                        <div class="review-step slide-in">
-                                            <div class="review-item">
-                                                <span class="label">"ORG"</span>
-                                                <span class="value">{system_name}</span>
+                                        }
+                                            .into_any()
+                                    }
+                                    _ => {
+                                        view! {
+                                            <div class="review-step slide-in">
+                                                <div class="review-item">
+                                                    <span class="label">"ORG"</span>
+                                                    <span class="value">{system_name}</span>
+                                                </div>
+                                                <div class="review-item">
+                                                    <span class="label">"HANDLE"</span>
+                                                    <span class="value">{workspace_handle}</span>
+                                                </div>
+                                                <div class="review-item">
+                                                    <span class="label">"COMMS"</span>
+                                                    <span class="value">{email}</span>
+                                                </div>
+                                                <div class="review-item">
+                                                    <span class="label">"USER"</span>
+                                                    <span class="value">{user_name}</span>
+                                                </div>
                                             </div>
-                                            <div class="review-item">
-                                                <span class="label">"HANDLE"</span>
-                                                <span class="value">{workspace_handle}</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="label">"COMMS"</span>
-                                                <span class="value">{email}</span>
-                                            </div>
-                                            <div class="review-item">
-                                                <span class="label">"USER"</span>
-                                                <span class="value">{user_name}</span>
-                                            </div>
-                                        </div>
-                                    }.into_any(),
+                                        }
+                                            .into_any()
+                                    }
                                 }}
                             </div>
                             <div class="wizard-actions mt-10 flex gap-4">
-                                {move || (step.get() > 0).then(|| view! {
-                                    <button
-                                        type="button"
-                                        class="btn btn-ghost glass-btn flex-1"
-                                        on:click=prev_step
-                                    >
-                                        "PREVIOUS"
-                                    </button>
-                                })}
+                                {move || {
+                                    (step.get() > 0)
+                                        .then(|| {
+                                            view! {
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-ghost glass-btn flex-1"
+                                                    on:click=prev_step
+                                                >
+                                                    "PREVIOUS"
+                                                </button>
+                                            }
+                                        })
+                                }}
                                 <button
                                     type="button"
                                     class="btn btn-primary glow-primary flex-[2]"
                                     on:click=next_step
-                                    disabled=move || register_loading.get() || (step.get() == 1 && (workspace_handle.get().len() < 3 || matches!(handle_available.get(), Some(Ok(false)))))
+                                    disabled=move || {
+                                        register_loading.get()
+                                            || (step.get() == 1
+                                                && (workspace_handle.get().len() < 3
+                                                    || matches!(handle_available.get(), Some(Ok(false)))))
+                                    }
                                 >
                                     {move || {
                                         if register_loading.get() {
@@ -454,10 +548,7 @@ pub fn RegisterPage() -> impl IntoView {
                     </div>
 
                     <footer class="auth-footer scale-in mt-12">
-                        <p>
-                            "Already authorized? "
-                            <A href="/auth/login">"Enter System"</A>
-                        </p>
+                        <p>"Already authorized? " <A href="/auth/login">"Enter System"</A></p>
                         <A href="/" attr:class="back-to-home">
                             "← Back to Terminal"
                         </A>

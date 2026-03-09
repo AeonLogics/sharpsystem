@@ -44,7 +44,5 @@ pub fn LayoutPage() -> impl IntoView {
         }
     });
 
-    view! {
-        <Outlet />
-    }
+    view! { <Outlet /> }
 }
