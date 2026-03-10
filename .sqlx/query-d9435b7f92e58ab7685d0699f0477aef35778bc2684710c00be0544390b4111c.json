@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, system_id, name, sku, category, is_tracked, added_by, last_edited_by as \"last_edited_by?\"\n        FROM products\n        WHERE system_id = $1\n        ORDER BY name ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "system_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "sku",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "category",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_tracked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "added_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "last_edited_by?",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "d9435b7f92e58ab7685d0699f0477aef35778bc2684710c00be0544390b4111c"
+}

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE sessions \n         SET expires_at = NOW() + INTERVAL '7 days' \n         WHERE token = $1 \n         AND expires_at < NOW() + INTERVAL '6 days'",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "503df3b22f17d789046a66c423993d6dc93e8dbb8247a903793ef08330afdc82"
+}
