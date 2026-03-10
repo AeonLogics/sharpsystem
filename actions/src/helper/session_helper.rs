@@ -15,8 +15,9 @@ pub fn set_session_token(token: &str) -> Result<(), SystemError> {
     let cookie = Cookie::build(("session_token", token.to_string()))
         .path("/")
         .http_only(true)
-        .same_site(SameSite::Strict)
-        .secure(false)
+        .same_site(SameSite::Lax)
+        .secure(false) // Keep false for localhost dev; production should be true
+        .max_age(time::Duration::days(7))
         .build();
 
     let header_value = HeaderValue::from_str(&cookie.to_string())

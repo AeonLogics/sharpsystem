@@ -19,6 +19,7 @@ leptos_axum = { version = "0.8", optional = true }
 axum-extra = { version = "0.10.3", features = ["cookie"], optional = true }
 axum = { version = "0.8", optional = true }
 validator = { version = "0.20.0", features = ["derive"] }
+time = { version = "0.3", optional = true }
 
 [features]
 ssr = [
@@ -30,5 +31,6 @@ ssr = [
     "dep:leptos_axum",
     "dep:axum-extra",
     "dep:axum",
+    "dep:time",
     "models/ssr",
 ]
